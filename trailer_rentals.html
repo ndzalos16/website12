@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trailer Rentals - Your Premier Trailer Hiring Solution</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Base styles for the always-light mode */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* Very light background, close to white but softer */
+            color: #1f2937; /* Dark gray text */
+        }
+        .bg-white {
+            background-color: #ffffff; /* Pure white for elements that should be white */
+        }
+        .text-gray-800 {
+            color: #1f2937; /* Very dark gray for prominent text */
+        }
+        .text-gray-900 {
+            color: #111827; /* Near black for main headings */
+        }
+        .text-gray-600 {
+            color: #4b5563; /* Medium gray for secondary text/links */
+        }
+        .text-gray-700 {
+            color: #374151; /* Slightly darker gray for paragraphs */
+        }
+        .bg-gray-50 {
+            background-color: #f9fafb; /* Lightest gray for alternate sections */
+        }
+        .bg-gray-100 {
+            background-color: #f3f4f6; /* Light blue-gray for cards */
+        }
+        .border-gray-300 {
+            border-color: #d1d5db; /* Light subtle border */
+        }
+        .bg-blue-50 {
+            background-color: #eff6ff; /* Very light blue background for AI output */
+            color: #1e40af; /* Dark blue text for AI output */
+        }
+        input, textarea {
+            background-color: #ffffff; /* White background for inputs */
+            color: #1f2937; /* Dark text for inputs */
+            border-color: #cbd5e1;
+        }
+        input::placeholder, textarea::placeholder {
+            color: #6b7280;
+        }
+        .bg-gradient-to-r {
+            background-image: linear-gradient(to right, #2563eb, #1e3a8a); /* Original blue gradient */
+        }
+        .shadow-md {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Standard light shadow */
+        }
+
+
+        /* Custom scrollbar for a slightly more polished look */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e2e8f0;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Animation for elements appearing on scroll */
+        .animate-on-scroll-hidden {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+            transition-delay: var(--delay, 0s); /* Use CSS variable for staggered delay */
+        }
+
+        .animate-on-scroll-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Keyframe animation for Hero section text (starts immediately on load) */
+        @keyframes fade-in-up {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in-up {
+            animation: fade-in-up 0.8s ease-out forwards;
+        }
+        .animate-fade-in-up.delay-200 { animation-delay: 0.2s; }
+        .animate-fade-in-up.delay-400 { animation-delay: 0.4s; }
+
+        /* Keyframe animation for the self-animated trailer */
+        @keyframes driveAndReverse {
+            0% {
+                left: -20%; /* Start off-screen left (more than its own width to ensure full hide) */
+                transform: translateX(0%); /* No additional transform at start */
+            }
+            49.99% { /* Just before halfway point, trailer is off-screen right */
+                left: 120%; /* Move completely off-screen right */
+                transform: translateX(0%);
+            }
+            50% {
+                /* At 50%, instantly jump back to off-screen left but flipped,
+                   to begin the reverse journey */
+                left: -20%;
+                transform: translateX(0%);
+            }
+            100% {
+                /* End of animation, back to the start state, but having completed the "reverse" visual path */
+                left: 120%;
+                transform: translateX(0%);
+            }
+        }
+
+        #hero-trailer-img {
+            position: absolute;
+            bottom: 20px; /* Adjust vertical position */
+            z-index: 5; /* Ensure it's above other hero elements if needed */
+            max-width: 150px; /* Set a max width for the trailer image */
+            height: auto; /* Maintain aspect ratio */
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4)); /* Optional shadow for depth */
+
+            /* Apply the animation: 20s duration for slower movement, infinite, linear speed */
+            animation: driveAndReverse 20s infinite linear;
+        }
+
+        /* Responsive adjustments for the trailer image max-width */
+        @media (min-width: 768px) { /* md breakpoint */
+            #hero-trailer-img {
+                max-width: 250px; /* Larger on desktop */
+                bottom: 40px;
+            }
+        }
+        @media (min-width: 1024px) { /* lg breakpoint */
+            #hero-trailer-img {
+                max-width: 300px; /* Even larger on large screens */
+                bottom: 60px;
+            }
+        }
+
+        /* Loading spinner */
+        .loader {
+            border: 4px solid #f3f3f3; /* Light grey */
+            border-top: 4px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Mobile Menu Overlay specific styles */
+        #mobile-menu {
+            /* Ensure it covers the entire screen and sits on top */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.98); /* Near opaque white background */
+            z-index: 1000; /* Ensure it's above everything else */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.3s ease-in-out; /* Smooth fade in/out */
+            opacity: 0;
+            visibility: hidden; /* Hidden by default */
+        }
+
+        #mobile-menu.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        #mobile-menu .close-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 2rem;
+            cursor: pointer;
+        }
+
+        /* Modal specific styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); /* Dark semi-transparent background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            padding: 2.5rem;
+            border-radius: 0.75rem; /* rounded-lg */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-xl */
+            position: relative;
+            max-width: 90%; /* Responsive width */
+            width: 500px; /* Max width for desktop */
+            max-height: 90vh; /* Max height to prevent overflow on small screens */
+            overflow-y: auto; /* Enable scrolling for long content */
+            transform: translateY(20px); /* Initial state for animation */
+            transition: transform 0.3s ease-out;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0); /* Animate into view */
+        }
+
+        /* Category filter button styles */
+        .category-button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px; /* Full rounded corners */
+            font-weight: 500; /* Medium font weight */
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid #a0aec0; /* Light border for inactive */
+            color: #4b5563; /* Dark text for inactive */
+            background-color: #ffffff;
+            white-space: nowrap; /* Prevent wrapping */
+        }
+        .category-button:hover {
+            background-color: #e2e8f0; /* Lighter hover background */
+            border-color: #4299e1; /* Blue border on hover */
+            color: #2b6cb0; /* Darker blue text on hover */
+        }
+        .category-button.active {
+            background-color: #2563eb; /* Blue background for active */
+            color: #ffffff; /* White text for active */
+            border-color: #2563eb; /* Blue border for active */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Styles for hidden categories with display toggle */
+        .category-section-wrapper {
+            transition: opacity 0.5s ease-out;
+        }
+
+        .category-section-wrapper.hidden-display {
+            display: none; /* Hide element completely */
+        }
+        .category-section-wrapper.fade-out {
+            opacity: 0;
+        }
+        .category-section-wrapper.fade-in {
+            opacity: 1;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Header Section -->
+    <header class="bg-white shadow-md py-2 px-6 md:px-12 fixed w-full z-10 top-0 rounded-b-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="#" class="flex-shrink-0 transition transform duration-300 hover:scale-105">
+                <!-- Company Logo -->
+                <img src="6_24_2025_4_51_25_PM-removebg-preview (1).png" alt="YBE Trailers Logo" class="h-14 w-auto object-contain">
+            </a>
+            <nav class="hidden md:flex md:space-x-6 lg:space-x-8 flex-grow justify-end">
+                <a href="#home" class="text-gray-600 hover:text-blue-700 font-medium transition duration-300 whitespace-nowrap">Home</a>
+                <a href="#about" class="text-gray-600 hover:text-blue-700 font-medium transition duration-300 whitespace-nowrap">About Us</a>
+                <a href="#trailer-recommendation" class="text-gray-600 hover:text-blue-700 font-medium transition duration-300 whitespace-nowrap">AI Advisor</a>
+                <a href="#trailers" class="text-gray-600 hover:text-blue-700 font-medium transition duration-300 whitespace-nowrap">Our Trailers</a>
+                <a href="#how-it-works" class="text-gray-600 hover:text-blue-700 font-medium transition duration-300 whitespace-nowrap">How It Works</a>
+                <a href="#contact" class="text-gray-600 hover:text-blue-700 font-medium transition duration-300 whitespace-nowrap">Contact</a>
+            </nav>
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-button" class="md:hidden text-gray-600 hover:text-blue-700 focus:outline-none flex-shrink-0">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+        <!-- Mobile Menu Overlay -->
+        <div id="mobile-menu" class="hidden md:hidden fixed inset-0 bg-white bg-opacity-95 z-20 flex flex-col items-center justify-center space-y-6">
+            <button id="close-mobile-menu" class="absolute top-4 right-6 text-gray-600 hover:text-blue-700 focus:outline-none">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+            <a href="#home" class="text-2xl text-gray-800 hover:text-blue-700 font-medium transition duration-300 py-2">Home</a>
+            <a href="#about" class="text-2xl text-gray-800 hover:text-blue-700 font-medium transition duration-300 py-2">About Us</a>
+            <a href="#trailer-recommendation" class="text-2xl text-gray-800 hover:text-blue-700 font-medium transition duration-300 py-2">AI Advisor</a>
+            <a href="#trailers" class="text-2xl text-gray-800 hover:text-blue-700 font-medium transition duration-300 py-2">Our Trailers</a>
+            <a href="#how-it-works" class="text-2xl text-gray-800 hover:text-blue-700 font-medium transition duration-300 py-2">How It Works</a>
+            <a href="#contact" class="text-2xl text-gray-800 hover:text-blue-700 font-medium transition duration-300 py-2">Contact</a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="relative bg-gradient-to-r from-blue-700 to-blue-900 text-white py-32 md:py-48 flex items-center justify-center rounded-b-xl shadow-lg mt-16 overflow-hidden">
+        <div class="absolute inset-0 bg-black opacity-30 rounded-b-xl"></div>
+        <div class="relative z-10 text-center px-4">
+            <h1 class="text-4xl md:text-6xl font-extrabold leading-tight mb-6 animate-fade-in-up">
+                Pulling together forward
+            </h1>
+            <p class="text-lg md:text-xl mb-10 max-w-2xl mx-auto opacity-90 animate-fade-in-up delay-200">
+                Rent strong, reliable trailers for all your transport needs — whether it's cars, livestock, or anything in between.
+            </p>
+            <a href="#trailers" class="inline-block bg-white text-blue-700 px-8 py-4 rounded-full text-lg font-semibold shadow-xl hover:bg-gray-100 hover:scale-105 transform transition duration-300 animate-fade-in-up delay-400">
+                Explore Our Trailers
+            </a>
+        </div>
+        <!-- Moving Trailer Image -->
+        <img id="hero-trailer-img" src="WhatsApp_Image_2025-06-24_at_17.42.39_2d4e699c-removebg-preview.png" alt="Animated Trailer">
+    </section>
+
+    <!-- About Us Section -->
+    <section id="about" class="py-16 md:py-24 bg-gray-50 px-6 rounded-xl mx-4 my-8 shadow-md">
+        <div class="container mx-auto text-center">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-8 animate-on-scroll-hidden">About Us</h2>
+            <p class="text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed animate-on-scroll-hidden">
+                At YBE Trailers, we are committed to offering high-quality trailer rental services that match your specific needs. With a wide range of clean and well-serviced trailers, we make sure your rental is safe, reliable, and easy. Whether you are moving a car, transporting farm animals, or carrying goods, we have the right trailer for the job. Our goal is to make your rental experience smooth, simple, and worry-free.
+            </p>
+        </div>
+    </section>
+
+    <!-- New: Find Your Perfect Trailer Section (Gemini API Integration) -->
+    <section id="trailer-recommendation" class="py-16 md:py-24 px-6 rounded-xl mx-4 my-8 shadow-md bg-white">
+        <div class="container mx-auto text-center">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-12 animate-on-scroll-hidden flex items-center justify-center">
+                <span>✨ Find Your Perfect Trailer</span>
+            </h2>
+            <p class="text-lg text-gray-700 mb-8 max-w-2xl mx-auto animate-on-scroll-hidden">
+                Unsure which trailer fits your needs? Describe what you're hauling, and our AI assistant will recommend the best option!
+            </p>
+            <div class="max-w-xl mx-auto bg-gray-50 p-8 rounded-lg shadow-lg animate-on-scroll-hidden">
+                <textarea id="user-needs-input" rows="4" placeholder="e.g., 'moving a small car for repairs', 'transporting two cows to the market', 'hauling construction debris from a renovation project'"
+                    class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 mb-6"></textarea>
+                <button id="get-recommendation-btn"
+                    class="w-full bg-blue-600 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-xl hover:bg-blue-700 transform hover:scale-105 transition duration-300 flex items-center justify-center space-x-2">
+                    <span id="button-text">✨ Get Recommendation</span>
+                    <div id="loading-spinner" class="loader hidden"></div>
+                </button>
+                <div id="recommendation-output" class="mt-8 p-4 bg-blue-50 text-blue-800 rounded-lg text-left hidden">
+                    <!-- AI recommendation will be displayed here -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Trailer Categories Section -->
+    <section id="trailers" class="py-16 md:py-24 px-6 rounded-xl mx-4 my-8 shadow-md bg-white">
+        <div class="container mx-auto text-center">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-12 animate-on-scroll-hidden">Our Diverse Trailer Fleet</h2>
+
+            <!-- Category Filter Buttons -->
+            <div class="flex flex-wrap justify-center gap-4 mb-12 animate-on-scroll-hidden" data-index="0">
+                <button class="category-button active" data-category="all">All Trailers</button>
+                <button class="category-button" data-category="car-trailers">Car Trailers</button>
+                <button class="category-button" data-category="cattle-trailers">Cattle Trailers</button>
+                <button class="category-button" data-category="goods-trailers">Goods Trailers</button>
+            </div>
+
+            <!-- All Trailer Categories Container -->
+            <!-- Each category section is now a direct child and managed by JS for display -->
+            
+            <!-- Car Trailers Section -->
+            <div id="car-trailers-section" class="category-section-wrapper mb-16">
+                <h3 class="text-2xl md:text-3xl font-semibold text-blue-700 mb-8 animate-on-scroll-hidden">Car Trailers</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Double Axle Car Hauler (TRL001) -->
+                    <div class="bg-gray-100 rounded-lg shadow-lg p-6 flex flex-col items-center animate-on-scroll-hidden" data-index="0">
+                        <img src="2f387444-3a64-441a-aa30-d0bea3a1c699.png" alt="Double Axle Car Hauler" class="w-full h-48 object-cover rounded-md mb-4 shadow-sm">
+                        <h4 class="text-xl font-semibold text-gray-800 mb-2">Double Axle Car Hauler</h4>
+                        <p class="text-gray-600 text-center mb-4">Robust and reliable for larger vehicles like SUVs and double cab bakkies, ensuring enhanced stability for heavier loads.</p>
+                        <button class="view-details-btn bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transform hover:scale-105 transition duration-300 shadow-md"
+                                data-trailer-type="Double Axle Car Hauler"
+                                data-trailer-id="TRL001"
+                                data-price="R900 per day"
+                                data-weight="Up to 3.5 tons (3500 kg / 7730 pounds)"
+                                data-tires="4"
+                                data-length="5m"
+                                data-deposit="No deposit required"
+                                data-spare-wheel="R450 extra (optional hire)"
+                                data-liability="Customer is liable for any damage if it's their fault, unless the trailer was not well maintained."
+                                data-late-return="R100 per hour for late return"
+                                data-image="2f387444-3a64-441a-aa30-d0bea3a1c699.png">
+                            View Details
+                        </button>
+                    </div>
+                    <!-- Car Trailer 2 (TRL002) -->
+                    <div class="bg-gray-100 rounded-lg shadow-lg p-6 flex flex-col items-center animate-on-scroll-hidden" data-index="1">
+                        <img src="https://placehold.co/400x250/F87171/FFFFFF?text=Car+Trailer+2" alt="Car Trailer 2" class="w-full h-48 object-cover rounded-md mb-4 shadow-sm">
+                        <h4 class="text-xl font-semibold text-gray-800 mb-2">Double Axle Car Transporter</h4>
+                        <p class="text-gray-600 text-center mb-4">Ideal for larger cars, SUVs, or heavier hauling needs. Enhanced stability.</p>
+                        <button class="view-details-btn bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transform hover:scale-105 transition duration-300 shadow-md"
+                                data-trailer-type="Double Axle Car Transporter"
+                                data-trailer-id="TRL002"
+                                data-price="R850 per day"
+                                data-weight="Up to 3.0 tons (3000 kg / 6614 pounds)"
+                                data-tires="4"
+                                data-length="4.5m"
+                                data-deposit="No deposit required"
+                                data-spare-wheel="R450 extra (optional hire)"
+                                data-liability="Customer is liable for any damage if it's their fault, unless the trailer was not well maintained."
+                                data-late-return="R100 per hour for late return"
+                                data-image="https://placehold.co/400x250/F87171/FFFFFF?text=Car+Trailer+2">
+                            View Details
+                        </button>
+                    </div>
+                    <!-- Car Trailer 3 (TRL003) -->
+                    <div class="bg-gray-100 rounded-lg shadow-lg p-6 flex flex-col items-center animate-on-scroll-hidden" data-index="2">
+                        <img src="https://placehold.co/400x250/F87171/FFFFFF?text=Car+Trailer+3" alt="Car Trailer 3" class="w-full h-48 object-cover rounded-md mb-4 shadow-sm">
+                        <h4 class="text-xl font-semibold text-gray-800 mb-2">Enclosed Car Trailer</h4>
+                        <p class="text-gray-600 text-center mb-4">Offers maximum protection for classic cars or sensitive vehicles.</p>
+                        <button class="view-details-btn bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transform hover:scale-105 transition duration-300 shadow-md"
+                                data-trailer-type="Enclosed Car Trailer"
+                                data-trailer-id="TRL003"
+                                data-price="R1200 per day"
+                                data-weight="Up to 2.8 tons (2800 kg / 6173 pounds)"
+                                data-tires="4"
+                                data-length="5.2m"
+                                data-deposit="No deposit required"
+                                data-spare-wheel="R450 extra (optional hire)"
+                                data-liability="Customer is liable for any damage if it's their fault, unless the trailer was not well maintained."
+                                data-late-return="R100 per hour for late return"
+                                data-image="https://placehold.co/400x250/F87171/FFFFFF?text=Car+Trailer+3">
+                            View Details
+                        </button>
+                    </div>
+                    <!-- Car Trailer 4 (TRL004) -->
+                    <div class="bg-gray-100 rounded-lg shadow-lg p-6 flex flex-col items-center animate-on-scroll-hidden" data-index="3">
+                        <img src="https://placehold.co/400x250/F87171/FFFFFF?text=Car+Trailer+4" alt="Car Trailer 4" class="w-full h-48 object-cover rounded-md mb-4 shadow-sm">
+                        <h4 class="text-xl font-semibold text-gray-800 mb-2">Open Car Trailer with Ramps</h4>
+                        <p class="text-gray-600 text-center mb-4">Easy loading/unloading for various car sizes. Durable and reliable.</p>
+                        <button class="view-details-btn bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transform hover:scale-105 transition duration-300 shadow-md"
+                                data-trailer-type="Open Car Trailer with Ramps"
+                                data-trailer-id="TRL004"
+                                data-price="R750 per day"
+                                data-weight="Up to 2.5 tons (2500 kg / 5512 pounds)"
+                                data-tires="4"
+                                data-length="4.8m"
+                                data-deposit="No deposit required"
+                                data-spare-wheel="R450 extra (optional hire)"
+                                data-liability="Customer is liable for any damage if it's their fault, unless the trailer was not well maintained."
+                                data-late-return="R100 per hour for late return"
+                                data-image="https://placehold.co/400x250/F87171/FFFFFF?text=Car+Trailer+4">
+                            View Details
+                        </button>
+                    </div>
+                    <!-- Car Trailer 5 (TRL005) -->
+                    <div class="bg-gray-100 rounded-lg shadow-lg p-6 flex flex-col items-center animate-on-scroll-hidden" data-index="4">
+                        <img src="https://placehold.co/400x250/F87171/FFFFFF?text=Car+Trailer+5" alt="Car Trailer 5" class="w-full h-48 object-cover rounded-md mb-4 shadow-sm">
+                        <h4 class="text-xl font-semibold text-gray-800 mb-2">Tilt Deck Car Trailer</h4>
+                        <p class="text-gray-600 text-center mb-4">Simplifies loading low-clearance vehicles without additional ramps.</p>
+                        <button class="view-details-btn bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transform hover:scale-105 transition duration-300 shadow-md"
+                                data-trailer-type="Tilt Deck Car Trailer"
+                                data-trailer-id="TRL005"
+                                data-price="R950 per day"
+                                data-weight="Up to 3.0 tons (3000 kg / 6614 pounds)"
+                                data-tires="4"
+                                data-length="5.0m"
+                                data-deposit="No deposit required"
+                                data-spare-wheel="R450 extra (optional hire)"
+                                data-liability="Customer is liable for any damage if it's their fault, unless the trailer was not well maintained."
+                                data-late-return="R100 per hour for late return"
+                                data-image="https://placehold.co/400x250/F87171/FFFFFF?text=Car+Trailer+5">
+                            View Details
+                        </button>
+                    </div>
+                    <!-- Car Trailer 6 (TRL006) -->
+                    <div class="bg-gray-100 rounded-lg shadow-lg p-6 flex flex-col items-center animate-on-scroll-hidden" data-index="5">
+                        <img src="https://placehold.co/400x250/F87171/FFFFFF?text=Car+Trailer+6" alt="Car Trailer 6" class="w-full h-48 object-cover rounded-md mb-4 shadow-sm">
+                        <h4 class="text-xl font-semibold text-gray-800 mb-2">Heavy Duty Car Hauler</h4>
+                        <p class="text-gray-600 text-center mb-4">Built for extreme loads and long distances, ensuring secure transport.</p>
+                        <button class="view-details-btn bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transform hover:scale-105 transition duration-300 shadow-md"
+                                data-trailer-type="Heavy Duty Car Hauler"
+                                data-trailer-id="TRL006"
+                                data-price="R1100 per day"
+                                data-weight="Up to 4.0 tons (4000 kg / 8818 pounds)"
+                                data-tires="6"
+                                data-length="6.0m"
+                                data-deposit="No deposit required"
+                                data-spare-wheel="R450 extra (optional hire)"
+                                data-liability="Customer is liable for any damage if it's their fault, unless the trailer was not well maintained."
+                                data-late-return="R100 per hour for late return"
+                                data-image="https://placehold.co/400x250/F87171/FFFFFF?text=Car+Trailer+6">
+                            View Details
+                        </button>
+                    </div>
+                    <!-- Car Trailer 7 (TRL007) -->
+                    <div class="bg-gray-100 rounded-lg shadow-lg p-6 flex flex-col items-center animate-on-scroll-hidden" data-index="6">
+                        <img src="https://placehold.co/400x250/F87171/FFFFFF?text=Car+Trailer+7" alt="Car Trailer 7" class="w-full h-48 object-cover rounded-md mb-4 shadow-sm">
+                        <h4 class="text-xl font-semibold text-gray-800 mb-2">Compact Car Trailer</h4>
+                        <p class="text-gray-600 text-center mb-4">Lightweight and ideal for smaller cars or tight spaces.</p>
+                        <button class="view-details-btn bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transform hover:scale-105 transition duration-300 shadow-md"
+                                data-trailer-type="Compact Car Trailer"
+                                data-trailer-id="TRL007"
+                                data-price="R600 per day"
+                                data-weight="Up to 1.5 tons (1500 kg / 3307 pounds)"
+                                data-tires="2"
+                                data-length="3.5m"
+                                data-deposit="No deposit required"
+                                data-spare-wheel="R450 extra (optional hire)"
+                                data-liability="Customer is liable for any damage if it's their fault, unless the trailer was not well maintained."
+                                data-late-return="R100 per hour for late return"
+                                data-image="https://placehold.co/400x250/F87171/FFFFFF?text=Car+Trailer+7">
+                            View Details
+                        </button>
+                    </div>
+                    <!-- Car Trailer 8 (TRL008) -->
+                    <div class="bg-gray-100 rounded-lg shadow-lg p-6 flex flex-col items-center animate-on-scroll-hidden" data-index="7">
+                        <img src="https://placehold.co/400x250/F87171/FFFFFF?text=Car+Trailer+8" alt="Car Trailer 8" class="w-full h-48 object-cover rounded-md mb-4 shadow-sm">
+                        <h4 class="text-xl font-semibold text-gray-800 mb-2">Race Car Transporter</h4>
+                        <p class="text-gray-600 text-center mb-4">Specialized design for performance vehicles, offering enhanced security.</p>
+                        <button class="view-details-btn bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transform hover:scale-105 transition duration-300 shadow-md"
+                                data-trailer-type="Race Car Transporter"
+                                data-trailer-id="TRL008"
+                                data-price="R1500 per day"
+                                data-weight="Up to 2.0 tons (2000 kg / 4409 pounds)"
+                                data-tires="4"
+                                data-length="5.5m"
+                                data-deposit="No deposit required"
+                                data-spare-wheel="R450 extra (optional hire)"
+                                data-liability="Customer is liable for any damage if it's their fault, unless the trailer was not well maintained."
+                                data-late-return="R100 per hour for late return"
+                                data-image="https://placehold.co/400x250/F87171/FFFFFF?text=Car+Trailer+8">
+                            View Details
+                        </button>
+                    </div>
+                    <!-- End of Car Trailers -->
+                </div>
+            </div>
+
+            <!-- Cattle Trailers Section -->
+            <div id="cattle-trailers-section" class="category-section-wrapper mb-16 category-section-hidden">
+                <h3 class="text-2xl md:text-3xl font-semibold text-blue-700 mb-8 animate-on-scroll-hidden">Cattle Trailers</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Cattle Trailer 1 (TRL009) -->
+                    <div class="bg-gray-100 rounded-lg shadow-lg p-6 flex flex-col items-center animate-on-scroll-hidden" data-index="0">
+                        <img src="https://placehold.co/400x250/68D391/FFFFFF?text=Cattle+Trailer+1" alt="Cattle Trailer 1" class="w-full h-48 object-cover rounded-md mb-4 shadow-sm">
+                        <h4 class="text-xl font-semibold text-gray-800 mb-2">Small Livestock Trailer</h4>
+                        <p class="text-gray-600 text-center mb-4">Designed for safe and comfortable transport of smaller livestock.</p>
+                        <button class="view-details-btn bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transform hover:scale-105 transition duration-300 shadow-md"
+                                data-trailer-type="Small Livestock Trailer"
+                                data-trailer-id="TRL009"
+                                data-price="R700 per day"
+                                data-weight="Up to 1.0 ton (1000 kg / 2205 pounds)"
+                                data-tires="2"
+                                data-length="3.0m"
+                                data-deposit="No deposit required"
+                                data-spare-wheel="R450 extra (optional hire)"
+                                data-liability="Customer is liable for any damage if it's their fault, unless the trailer was not well maintained."
+                                data-late-return="R100 per hour for late return"
+                                data-image="https://placehold.co/400x250/68D391/FFFFFF?text=Cattle+Trailer+1">
+                            View Details
+                        </button>
+                    </div>
+                    <!-- Cattle Trailer 2 (TRL010) -->
+                    <div class="bg-gray-100 rounded-lg shadow-lg p-6 flex flex-col items-center animate-on-scroll-hidden" data-index="1">
+                        <img src="https://placehold.co/400x250/68D391/FFFFFF?text=Cattle+Trailer+2" alt="Cattle Trailer 2" class="w-full h-48 object-cover rounded-md mb-4 shadow-sm">
+                        <h4 class="text-xl font-semibold text-gray-800 mb-2">Standard Cattle Hauler</h4>
+                        <p class="text-gray-600 text-center mb-4">Robust and reliable for general cattle transport. Ventilated for comfort.</p>
+                        <button class="view-details-btn bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transform hover:scale-105 transition duration-300 shadow-md"
+                                data-trailer-type="Standard Cattle Hauler"
+                                data-trailer-id="TRL010"
+                                data-price="R900 per day"
+                                data-weight="Up to 2.0 tons (2000 kg / 4409 pounds)"
+                                data-tires="4"
+                                data-length="4.0m"
+                                data-deposit="No deposit required"
+                                data-spare-wheel="R450 extra (optional hire)"
+                                data-liability="Customer is liable for any damage if it's their fault, unless the trailer was not well maintained."
+                                data-late-return="R100 per hour for late return"
+                                data-image="https://placehold.co/400x250/68D391/FFFFFF?text=Cattle+Trailer+2">
+                            View Details
+                        </button>
+                    </div>
+                    <!-- Cattle Trailer 3 (TRL011) -->
+                    <div class="bg-gray-100 rounded-lg shadow-lg p-6 flex flex-col items-center animate-on-scroll-hidden" data-index="2">
+                        <img src="https://placehold.co/400x250/68D391/FFFFFF?text=Cattle+Trailer+3" alt="Cattle Trailer 3" class="w-full h-48 object-cover rounded-md mb-4 shadow-sm">
+                        <h4 class="text-xl font-semibold text-gray-800 mb-2">Multi-Compartment Livestock Trailer</h4>
+                        <p class="text-gray-600 text-center mb-4">Allows for segregation of different animals, ensuring their safety.</p>
+                        <button class="view-details-btn bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transform hover:scale-105 transition duration-300 shadow-md"
+                                data-trailer-type="Multi-Compartment Livestock Trailer"
+                                data-trailer-id="TRL011"
+                                data-price="R1100 per day"
+                                data-weight="Up to 2.5 tons (2500 kg / 5512 pounds)"
+                                data-tires="4"
+                                data-length="4.5m"
+                                data-deposit="No deposit required"
+                                data-spare-wheel="R450 extra (optional hire)"
+                                data-liability="Customer is liable for any damage if it's their fault, unless the trailer was not well maintained."
+                                data-late-return="R100 per hour for late return"
+                                data-image="https://placehold.co/400x250/68D391/FFFFFF?text=Cattle+Trailer+3">
+                            View Details
+                        </button>
+                    </div>
+                    <!-- Cattle Trailer 4 (TRL012) -->
+                    <div class="bg-gray-100 rounded-lg shadow-lg p-6 flex flex-col items-center animate-on-scroll-hidden" data-index="3">
+                        <img src="https://placehold.co/400x250/68D391/FFFFFF?text=Cattle+Trailer+4" alt="Cattle Trailer 4" class="w-full h-48 object-cover rounded-md mb-4 shadow-sm">
+                        <h4 class="text-xl font-semibold text-gray-800 mb-2">Gooseneck Cattle Trailer</h4>
+                        <p class="text-gray-600 text-center mb-4">Offers superior stability and towing capacity for larger herds.</p>
+                        <button class="view-details-btn bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transform hover:scale-105 transition duration-300 shadow-md"
+                                data-trailer-type="Gooseneck Cattle Trailer"
+                                data-trailer-id="TRL012"
+                                data-price="R1300 per day"
+                                data-weight="Up to 3.0 tons (3000 kg / 6614 pounds)"
+                                data-tires="6"
+                                data-length="6.0m"
+                                data-deposit="No deposit required"
+                                data-spare-wheel="R450 extra (optional hire)"
+                                data-liability="Customer is liable for any damage if it's their fault, unless the trailer was not well maintained."
+                                data-late-return="R100 per hour for late return"
+                                data-image="https://placehold.co/400x250/68D391/FFFFFF?text=Cattle+Trailer+4">
+                            View Details
+                        </button>
+                    </div>
+                    <!-- Cattle Trailer 5 (TRL013) -->
+                    <div class="bg-gray-100 rounded-lg shadow-lg p-6 flex flex-col items-center animate-on-scroll-hidden" data-index="4">
+                        <img src="https://placehold.co/400x250/68D391/FFFFFF?text=Cattle+Trailer+5" alt="Cattle Trailer 5" class="w-full h-48 object-cover rounded-md mb-4 shadow-sm">
+                        <h4 class="text-xl font-semibold text-gray-800 mb-2">Horse Trailer (2-Stall)</h4>
+                        <p class="text-gray-600 text-center mb-4">Safe and comfortable transport for horses, with padded stalls.</p>
+                        <button class="view-details-btn bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transform hover:scale-105 transition duration-300 shadow-md"
+                                data-trailer-type="Horse Trailer (2-Stall)"
+                                data-trailer-id="TRL013"
+                                data-price="R1000 per day"
+                                data-weight="Up to 1.5 tons (1500 kg / 3307 pounds)"
+                                data-tires="2"
+                                data-length="3.8m"
+                                data-deposit="No deposit required"
+                                data-spare-wheel="R450 extra (optional hire)"
+                                data-liability="Customer is liable for any damage if it's their fault, unless the trailer was not well maintained."
+                                data-late-return="R100 per hour for late return"
+                                data-image="https://placehold.co/400x250/68D391/FFFFFF?text=Cattle+Trailer+5">
+                            View Details
+                        </button>
+                    </div>
+                    <!-- Cattle Trailer 6 (TRL014) -->
+                    <div class="bg-gray-100 rounded-lg shadow-lg p-6 flex flex-col items-center animate-on-scroll-hidden" data-index="5">
+                        <img src="https://placehold.co/400x250/68D391/FFFFFF?text=Cattle+Trailer+6" alt="Cattle Trailer 6" class="w-full h-48 object-cover rounded-md mb-4 shadow-sm">
+                        <h4 class="text-xl font-semibold text-gray-800 mb-2">Custom Livestock Carrier</h4>
+                        <p class="text-gray-600 text-center mb-4">Built to spec for specific animal transport requirements.</p>
+                        <button class="view-details-btn bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transform hover:scale-105 transition duration-300 shadow-md"
+                                data-trailer-type="Custom Livestock Carrier"
+                                data-trailer-id="TRL014"
+                                data-price="R1400 per day"
+                                data-weight="Varies"
+                                data-tires="Varies"
+                                data-length="Varies"
+                                data-deposit="No deposit required"
+                                data-spare-wheel="R450 extra (optional hire)"
+                                data-liability="Customer is liable for any damage if it's their fault, unless the trailer was not well maintained."
+                                data-late-return="R100 per hour for late return"
+                                data-image="https://placehold.co/400x250/68D391/FFFFFF?text=Cattle+Trailer+6">
+                            View Details
+                        </button>
+                    </div>
+                    <!-- Cattle Trailer 7 (TRL015) -->
+                    <div class="bg-gray-100 rounded-lg shadow-lg p-6 flex flex-col items-center animate-on-scroll-hidden" data-index="6">
+                        <img src="https://placehold.co/400x250/68D391/FFFFFF?text=Cattle+Trailer+7" alt="Cattle Trailer 7" class="w-full h-48 object-cover rounded-md mb-4 shadow-sm">
+                        <h4 class="text-xl font-semibold text-gray-800 mb-2">Ventilated Sheep Trailer</h4>
+                        <p class="text-gray-600 text-center mb-4">Ensures airflow and comfort for smaller ruminants.</p>
+                        <button class="view-details-btn bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transform hover:scale-105 transition duration-300 shadow-md"
+                                data-trailer-type="Ventilated Sheep Trailer"
+                                data-trailer-id="TRL015"
+                                data-price="R650 per day"
+                                data-weight="Up to 0.8 tons (800 kg / 1764 pounds)"
+                                data-tires="2"
+                                data-length="2.5m"
+                                data-deposit="No deposit required"
+                                data-spare-wheel="R450 extra (optional hire)"
+                                data-liability="Customer is liable for any damage if it's their fault, unless the trailer was not well maintained."
+                                data-late-return="R100 per hour for late return"
+                                data-image="https://placehold.co/400x250/68D391/FFFFFF?text=Cattle+Trailer+7">
+                            View Details
+                        </button>
+                    </div>
+                    <!-- Cattle Trailer 8 (TRL016) -->
+                    <div class="bg-gray-100 rounded-lg shadow-lg p-6 flex flex-col items-center animate-on-scroll-hidden" data-index="7">
+                        <img src="https://placehold.co/400x250/68D391/FFFFFF?text=Cattle+Trailer+8" alt="Cattle Trailer 8" class="w-full h-48 object-cover rounded-md mb-4 shadow-sm">
+                        <h4 class="text-xl font-semibold text-gray-800 mb-2">Pig Hauler</h4>
+                        <p class="text-gray-600 text-center mb-4">Specialized design for efficient and humane pig transport.</p>
+                        <button class="view-details-btn bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transform hover:scale-105 transition duration-300 shadow-md"
+                                data-trailer-type="Pig Hauler"
+                                data-trailer-id="TRL016"
+                                data-price="R720 per day"
+                                data-weight="Up to 1.2 tons (1200 kg / 2646 pounds)"
+                                data-tires="2"
+                                data-length="3.2m"
+                                data-deposit="No deposit required"
+                                data-spare-wheel="R450 extra (optional hire)"
+                                data-liability="Customer is liable for any damage if it's their fault, unless the trailer was not well maintained."
+                                data-late-return="R100 per hour for late return"
+                                data-image="https://placehold.co/400x250/68D391/FFFFFF?text=Cattle+Trailer+8">
+                            View Details
+                        </button>
+                    </div>
+                    <!-- End of Cattle Trailers -->
+                </div>
+            </div>
+
+            <!-- Goods Trailers Section -->
+            <div id="goods-trailers-section" class="category-section-wrapper category-section-hidden">
+                <h3 class="text-2xl md:text-3xl font-semibold text-blue-700 mb-8 animate-on-scroll-hidden">Goods Trailers</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Medium Goods Trailer (TRL019) -->
+                    <div class="bg-gray-100 rounded-lg shadow-lg p-6 flex flex-col items-center animate-on-scroll-hidden" data-index="0">
+                        <img src="WhatsApp Image 2025-06-25 at 16.26.30_3f85eec9.jpg" alt="Medium Goods Trailer" class="w-full h-48 object-cover rounded-md mb-4 shadow-sm">
+                        <h4 class="text-xl font-semibold text-gray-800 mb-2">Medium Goods Trailer</h4>
+                        <p class="text-gray-600 text-center mb-4">Versatile and efficient for a variety of medium-sized goods and household items.</p>
+                        <button class="view-details-btn bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transform hover:scale-105 transition duration-300 shadow-md"
+                                data-trailer-type="Medium Goods Trailer"
+                                data-trailer-id="TRL019"
+                                data-price="R500 per day"
+                                data-weight="Up to 1.8 tons (1800 kg / 3968 pounds)"
+                                data-tires="2"
+                                data-length="3m"
+                                data-deposit="No deposit required"
+                                data-spare-wheel="R450 extra (optional hire)"
+                                data-liability="Customer is liable for any damage if it's their fault, unless the trailer was not well maintained."
+                                data-late-return="R100 per hour for late return"
+                                data-image="WhatsApp Image 2025-06-25 at 16.26.30_3f85eec9.jpg">
+                            View Details
+                        </button>
+                    </div>
+                    <!-- Utility Box Trailer (TRL017 - re-indexed to 1) -->
+                    <div class="bg-gray-100 rounded-lg shadow-lg p-6 flex flex-col items-center animate-on-scroll-hidden" data-index="1">
+                        <img src="https://placehold.co/400x250/FBBF24/FFFFFF?text=Goods+Trailer+1" alt="Goods Trailer 1" class="w-full h-48 object-cover rounded-md mb-4 shadow-sm">
+                        <h4 class="text-xl font-semibold text-gray-800 mb-2">Utility Box Trailer</h4>
+                        <p class="text-gray-600 text-center mb-4">Versatile trailer for general household items, garden waste, or small equipment.</p>
+                        <button class="view-details-btn bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transform hover:scale-105 transition duration-300 shadow-md"
+                                data-trailer-type="Utility Box Trailer"
+                                data-trailer-id="TRL017"
+                                data-price="R500 per day"
+                                data-weight="Up to 0.75 tons (750 kg / 1653 pounds)"
+                                data-tires="2"
+                                data-length="2.5m"
+                                data-deposit="No deposit required"
+                                data-spare-wheel="R450 extra (optional hire)"
+                                data-liability="Customer is liable for any damage if it's their fault, unless the trailer was not well maintained."
+                                data-late-return="R100 per hour for late return"
+                                data-image="https://placehold.co/400x250/FBBF24/FFFFFF?text=Goods+Trailer+1">
+                            View Details
+                        </button>
+                    </div>
+                    <!-- Flatbed Trailer (TRL020) -->
+                    <div class="bg-gray-100 rounded-lg shadow-lg p-6 flex flex-col items-center animate-on-scroll-hidden" data-index="2">
+                        <img src="https://placehold.co/400x250/FBBF24/FFFFFF?text=Goods+Trailer+2" alt="Goods Trailer 2" class="w-full h-48 object-cover rounded-md mb-4 shadow-sm">
+                        <h4 class="text-xl font-semibold text-gray-800 mb-2">Flatbed Trailer</h4>
+                        <p class="text-gray-600 text-center mb-4">Open design for oversized or irregular-shaped items like timber or machinery.</p>
+                        <button class="view-details-btn bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transform hover:scale-105 transition duration-300 shadow-md"
+                                data-trailer-type="Flatbed Trailer"
+                                data-trailer-id="TRL020"
+                                data-price="R650 per day"
+                                data-weight="Up to 1.5 tons (1500 kg / 3307 pounds)"
+                                data-tires="2"
+                                data-length="3.0m"
+                                data-deposit="No deposit required"
+                                data-spare-wheel="R450 extra (optional hire)"
+                                data-liability="Customer is liable for any damage if it's their fault, unless the trailer was not well maintained."
+                                data-late-return="R100 per hour for late return"
+                                data-image="https://placehold.co/400x250/FBBF24/FFFFFF?text=Goods+Trailer+2">
+                            View Details
+                        </button>
+                    </div>
+                    <!-- Enclosed Cargo Trailer (TRL021) -->
+                    <div class="bg-gray-100 rounded-lg shadow-lg p-6 flex flex-col items-center animate-on-scroll-hidden" data-index="3">
+                        <img src="https://placehold.co/400x250/FBBF24/FFFFFF?text=Goods+Trailer+3" alt="Goods Trailer 3" class="w-full h-48 object-cover rounded-md mb-4 shadow-sm">
+                        <h4 class="text-xl font-semibold text-gray-800 mb-2">Enclosed Cargo Trailer</h4>
+                        <p class="text-gray-600 text-center mb-4">Secure and weatherproof, ideal for moving furniture, electronics, or valuables.</p>
+                        <button class="view-details-btn bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transform hover:scale-105 transition duration-300 shadow-md"
+                                data-trailer-type="Enclosed Cargo Trailer"
+                                data-trailer-id="TRL021"
+                                data-price="R800 per day"
+                                data-weight="Up to 1.0 ton (1000 kg / 2205 pounds)"
+                                data-tires="2"
+                                data-length="3.5m"
+                                data-deposit="No deposit required"
+                                data-spare-wheel="R450 extra (optional hire)"
+                                data-liability="Customer is liable for any damage if it's their fault, unless the trailer was not well maintained."
+                                data-late-return="R100 per hour for late return"
+                                data-image="https://placehold.co/400x250/FBBF24/FFFFFF?text=Goods+Trailer+3">
+                            View Details
+                        </button>
+                    </div>
+                    <!-- Tandem Axle Utility Trailer (TRL022) -->
+                    <div class="bg-gray-100 rounded-lg shadow-lg p-6 flex flex-col items-center animate-on-scroll-hidden" data-index="4">
+                        <img src="https://placehold.co/400x250/FBBF24/FFFFFF?text=Goods+Trailer+4" alt="Goods Trailer 4" class="w-full h-48 object-cover rounded-md mb-4 shadow-sm">
+                        <h4 class="text-xl font-semibold text-gray-800 mb-2">Tandem Axle Utility Trailer</h4>
+                        <p class="text-gray-600 text-center mb-4">Increased carrying capacity and stability for heavier general loads.</p>
+                        <button class="view-details-btn bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transform hover:scale-105 transition duration-300 shadow-md"
+                                data-trailer-type="Tandem Axle Utility Trailer"
+                                data-trailer-id="TRL022"
+                                data-price="R700 per day"
+                                data-weight="Up to 2.0 tons (2000 kg / 4409 pounds)"
+                                data-tires="4"
+                                data-length="4.0m"
+                                data-deposit="No deposit required"
+                                data-spare-wheel="R450 extra (optional hire)"
+                                data-liability="Customer is liable for any damage if it's their fault, unless the trailer was not well maintained."
+                                data-late-return="R100 per hour for late return"
+                                data-image="https://placehold.co/400x250/FBBF24/FFFFFF?text=Goods+Trailer+4">
+                            View Details
+                        </button>
+                    </div>
+                    <!-- Dump Trailer (TRL023) -->
+                    <div class="bg-gray-100 rounded-lg shadow-lg p-6 flex flex-col items-center animate-on-scroll-hidden" data-index="5">
+                        <img src="https://placehold.co/400x250/FBBF24/FFFFFF?text=Goods+Trailer+5" alt="Goods Trailer 5" class="w-full h-48 object-cover rounded-md mb-4 shadow-sm">
+                        <h4 class="text-xl font-semibold text-gray-800 mb-2">Dump Trailer</h4>
+                        <p class="text-gray-600 text-center mb-4">Hydraulic lift for easy unloading of aggregates, dirt, or debris.</p>
+                        <button class="view-details-btn bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transform hover:scale-105 transition duration-300 shadow-md"
+                                data-trailer-type="Dump Trailer"
+                                data-trailer-id="TRL023"
+                                data-price="R1000 per day"
+                                data-weight="Up to 2.5 tons (2500 kg / 5512 pounds)"
+                                data-tires="4"
+                                data-length="3.8m"
+                                data-deposit="No deposit required"
+                                data-spare-wheel="R450 extra (optional hire)"
+                                data-liability="Customer is liable for any damage if it's their fault, unless the trailer was not well maintained."
+                                data-late-return="R100 per hour for late return"
+                                data-image="https://placehold.co/400x250/FBBF24/FFFFFF?text=Goods+Trailer+5">
+                            View Details
+                        </button>
+                    </div>
+                    <!-- Equipment Trailer (TRL024) -->
+                    <div class="bg-gray-100 rounded-lg shadow-lg p-6 flex flex-col items-center animate-on-scroll-hidden" data-index="6">
+                        <img src="https://placehold.co/400x250/FBBF24/FFFFFF?text=Goods+Trailer+6" alt="Goods Trailer 6" class="w-full h-48 object-cover rounded-md mb-4 shadow-sm">
+                        <h4 class="text-xl font-semibold text-gray-800 mb-2">Equipment Trailer</h4>
+                        <p class="text-gray-600 text-center mb-4">Robust platform for transporting heavy machinery or construction equipment.</p>
+                        <button class="view-details-btn bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transform hover:scale-105 transition duration-300 shadow-md"
+                                data-trailer-type="Equipment Trailer"
+                                data-trailer-id="TRL024"
+                                data-price="R950 per day"
+                                data-weight="Up to 3.0 tons (3000 kg / 6614 pounds)"
+                                data-tires="4"
+                                data-length="4.5m"
+                                data-deposit="No deposit required"
+                                data-spare-wheel="R450 extra (optional hire)"
+                                data-liability="Customer is liable for any damage if it's their fault, unless the trailer was not well maintained."
+                                data-late-return="R100 per hour for late return"
+                                data-image="https://placehold.co/400x250/FBBF24/FFFFFF?text=Goods+Trailer+6">
+                            View Details
+                        </button>
+                    </div>
+                    <!-- Cage Trailer (TRL025) -->
+                    <div class="bg-gray-100 rounded-lg shadow-lg p-6 flex flex-col items-center animate-on-scroll-hidden" data-index="7">
+                        <img src="https://placehold.co/400x250/FBBF24/FFFFFF?text=Goods+Trailer+7" alt="Goods Trailer 7" class="w-full h-48 object-cover rounded-md mb-4 shadow-sm">
+                        <h4 class="text-xl font-semibold text-gray-800 mb-2">Cage Trailer</h4>
+                        <p class="text-gray-600 text-center mb-4">High mesh sides for secure transport of bulky, irregular items like green waste.</p>
+                        <button class="view-details-btn bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transform hover:scale-105 transition duration-300 shadow-md"
+                                data-trailer-type="Cage Trailer"
+                                data-trailer-id="TRL025"
+                                data-price="R600 per day"
+                                data-weight="Up to 1.0 ton (1000 kg / 2205 pounds)"
+                                data-tires="2"
+                                data-length="2.8m"
+                                data-deposit="No deposit required"
+                                data-spare-wheel="R450 extra (optional hire)"
+                                data-liability="Customer is liable for any damage if it's their fault, unless the trailer was not well maintained."
+                                data-late-return="R100 per hour for late return"
+                                data-image="https://placehold.co/400x250/FBBF24/FFFFFF?text=Goods+Trailer+7">
+                            View Details
+                        </button>
+                    </div>
+                    <!-- Box Trailer with Canopy (TRL026) -->
+                    <div class="bg-gray-100 rounded-lg shadow-lg p-6 flex flex-col items-center animate-on-scroll-hidden" data-index="8">
+                        <img src="https://placehold.co/400x250/FBBF24/FFFFFF?FFFFFF?text=Goods+Trailer+8" alt="Goods Trailer 8" class="w-full h-48 object-cover rounded-md mb-4 shadow-sm">
+                        <h4 class="text-xl font-semibold text-gray-800 mb-2">Box Trailer with Canopy</h4>
+                        <p class="text-gray-600 text-center mb-4">Offers protection from elements for sensitive goods, with easy access.</p>
+                        <button class="view-details-btn bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transform hover:scale-105 transition duration-300 shadow-md"
+                                data-trailer-type="Box Trailer with Canopy"
+                                data-trailer-id="TRL026"
+                                data-price="R750 per day"
+                                data-weight="Up to 0.9 tons (900 kg / 1984 pounds)"
+                                data-tires="2"
+                                data-length="3.0m"
+                                data-deposit="No deposit required"
+                                data-spare-wheel="R450 extra (optional hire)"
+                                data-liability="Customer is liable for any damage if it's their fault, unless the trailer was not well maintained."
+                                data-late-return="R100 per hour for late return"
+                                data-image="https://placehold.co/400x250/FBBF24/FFFFFF?text=Goods+Trailer+8">
+                            View Details
+                        </button>
+                    </div>
+                    <!-- Furniture Removalist Trailer (TRL027) -->
+                    <div class="bg-gray-100 rounded-lg shadow-lg p-6 flex flex-col items-center animate-on-scroll-hidden" data-index="9">
+                        <img src="https://placehold.co/400x250/FBBF24/FFFFFF?text=Goods+Trailer+9" alt="Goods Trailer 9" class="w-full h-48 object-cover rounded-md mb-4 shadow-sm">
+                        <h4 class="text-xl font-semibold text-gray-800 mb-2">Furniture Removalist Trailer</h4>
+                        <p class="text-gray-600 text-center mb-4">Spacious and enclosed, designed for moving household or office furniture.</p>
+                        <button class="view-details-btn bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transform hover:scale-105 transition duration-300 shadow-md"
+                                data-trailer-type="Furniture Removalist Trailer"
+                                data-trailer-id="TRL027"
+                                data-price="R1100 per day"
+                                data-weight="Up to 1.8 tons (1800 kg / 3968 pounds)"
+                                data-tires="4"
+                                data-length="4.0m"
+                                data-deposit="No deposit required"
+                                data-spare-wheel="R450 extra (optional hire)"
+                                data-liability="Customer is liable for any damage if it's their fault, unless the trailer was not well maintained."
+                                data-late-return="R100 per hour for late return"
+                                data-image="https://placehold.co/400x250/FBBF24/FFFFFF?text=Goods+Trailer+9">
+                            View Details
+                        </button>
+                    </div>
+                    <!-- End of Goods Trailers -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="py-16 md:py-24 bg-gray-50 px-6 rounded-xl mx-4 my-8 shadow-md">
+        <div class="container mx-auto text-center">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-12 animate-on-scroll-hidden">How It Works</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="flex flex-col items-center p-6 bg-white rounded-lg shadow-lg border-t-4 border-blue-500 animate-on-scroll-hidden" data-index="0">
+                    <div class="bg-blue-100 p-4 rounded-full mb-4">
+                        <svg class="w-12 h-12 text-blue-600" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">1. Choose Your Trailer</h3>
+                    <p class="text-gray-600">Browse our extensive fleet and select the perfect trailer for your needs.</p>
+                </div>
+                <div class="flex flex-col items-center p-6 bg-white rounded-lg shadow-lg border-t-4 border-blue-500 animate-on-scroll-hidden" data-index="1">
+                    <div class="bg-blue-100 p-4 rounded-full mb-4">
+                        <svg class="w-12 h-12 text-blue-600" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M19 4h-3V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM7 11h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">2. Book Your Rental</h3>
+                    <p class="text-gray-600">Contact us to check availability and easily book your desired trailer.</p>
+                </div>
+                <div class="flex flex-col items-center p-6 bg-white rounded-lg shadow-lg border-t-4 border-blue-500 animate-on-scroll-hidden" data-index="2">
+                    <div class="bg-blue-100 p-4 rounded-full mb-4">
+                        <svg class="w-12 h-12 text-blue-600" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">3. Pick Up & Go!</h3>
+                    <p class="text-gray-600">Collect your trailer and confidently complete your task.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-16 md:py-24 px-6 rounded-xl mx-4 my-8 shadow-md bg-white">
+        <div class="container mx-auto text-center">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-12 animate-on-scroll-hidden">Get in Touch</h2>
+            <div class="max-w-xl mx-auto bg-gray-50 p-8 rounded-lg shadow-lg animate-on-scroll-hidden">
+                <p class="text-lg text-gray-700 mb-6">
+                    Have questions or ready to book your trailer? Fill out the form below or contact us directly.
+                </p>
+                <form class="space-y-6">
+                    <div>
+                        <input type="text" id="name" name="name" placeholder="Your Name"
+                            class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300" required>
+                    </div>
+                    <div>
+                        <input type="email" id="email" name="email" placeholder="Your Email"
+                            class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300" required>
+                    </div>
+                    <div>
+                        <input type="tel" id="phone" name="phone" placeholder="Your Phone (Optional)"
+                            class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-2 focus:ring-blue-500 transition duration-300">
+                    </div>
+                    <div>
+                        <textarea id="message" name="message" rows="5" placeholder="Your Message or Inquiry"
+                            class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300" required></textarea>
+                    </div>
+                    <button type="submit"
+                        class="w-full bg-blue-600 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-xl hover:bg-blue-700 transform hover:scale-105 transition duration-300">
+                        Send Message
+                    </button>
+                </form>
+                <div class="mt-8 text-gray-700">
+                    <p class="mb-2"><strong class="text-blue-700">Phone:</strong> +27 12 345 6789</p>
+                    <p><strong class="text-blue-700">Email:</strong> info@trailerco.com</p>
+                    <p class="mt-4"><strong class="text-blue-700">Address:</strong> 123 Trailer Lane, Soshanguve, Gauteng, South Africa</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Section -->
+    <footer class="bg-gray-800 text-white py-8 text-center rounded-t-xl mt-8">
+        <div class="container mx-auto px-4">
+            <p>&copy; 2025 TrailerCo. All rights reserved.</p>
+            <div class="flex justify-center space-x-6 mt-4">
+                <a href="#" class="hover:text-blue-400 transition duration-300">Privacy Policy</a>
+                <a href="#" class="hover:text-blue-400 transition duration-300">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Trailer Details Modal Structure -->
+    <div id="trailer-details-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button id="close-modal-btn" class="absolute top-4 right-6 text-gray-600 hover:text-gray-900 text-2xl font-bold leading-none focus:outline-none">
+                &times;
+            </button>
+            <h3 id="modal-trailer-type" class="text-2xl font-bold text-gray-900 mb-4"></h3>
+            <img id="modal-trailer-image" src="" alt="Trailer Image" class="w-full h-48 object-cover rounded-md mb-4 shadow-sm">
+            <div class="space-y-2 text-left text-gray-700">
+                <p><strong>Price:</strong> <span id="modal-price"></span></p>
+                <p><strong>Weight Capacity:</strong> <span id="modal-weight"></span></p>
+                <p><strong>Tires:</strong> <span id="modal-tires"></span></p>
+                <p><strong>Length:</strong> <span id="modal-length"></span></p>
+                <p><strong>Deposit:</strong> <span id="modal-deposit"></span></p>
+                <p><strong>Spare Wheel:</strong> <span id="modal-spare-wheel"></span></p>
+                <p><strong>Liability:</strong> <span id="modal-liability"></span></p>
+                <p><strong>Late Return Charge:</strong> <span id="modal-late-return"></span></p>
+            </div>
+            <button id="book-now-modal-btn" class="mt-6 bg-blue-600 text-white px-6 py-3 rounded-full hover:bg-blue-700 transform hover:scale-105 transition duration-300 shadow-md">
+                Book Now
+            </button>
+        </div>
+    </div>
+
+    <!-- JavaScript for Mobile Menu and Scroll Animations -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- Mobile Menu Logic ---
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const closeMobileMenuButton = document.getElementById('close-mobile-menu');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const navLinks = mobileMenu.querySelectorAll('a');
+
+            // Robust checks for elements before adding event listeners
+            if (mobileMenuButton) {
+                mobileMenuButton.addEventListener('click', function() {
+                    if (mobileMenu) {
+                        mobileMenu.classList.remove('hidden');
+                        mobileMenu.classList.add('active'); // Use 'active' class for transitions
+                    }
+                    document.body.style.overflow = 'hidden'; // Prevent scrolling when menu is open
+                });
+            } else {
+                console.warn("Mobile menu button not found.");
+            }
+
+            if (closeMobileMenuButton) {
+                closeMobileMenuButton.addEventListener('click', function() {
+                    if (mobileMenu) {
+                        mobileMenu.classList.remove('active');
+                        // Add 'hidden' after transition completes for proper display: none
+                        setTimeout(() => mobileMenu.classList.add('hidden'), 300); // Matches transition duration
+                    }
+                    document.body.style.overflow = ''; // Restore scrolling
+                });
+            } else {
+                console.warn("Close mobile menu button not found.");
+            }
+            
+            // Close mobile menu when a link is clicked
+            if (navLinks.length > 0) {
+                navLinks.forEach(link => {
+                    link.addEventListener('click', function() {
+                        if (mobileMenu) {
+                            mobileMenu.classList.remove('active');
+                            setTimeout(() => mobileMenu.classList.add('hidden'), 300); // Matches transition duration
+                        }
+                        document.body.style.overflow = '';
+                    });
+                });
+            } else {
+                console.warn("Mobile navigation links not found.");
+            }
+            
+
+            // --- Smooth Scrolling Logic with Animation Reset ---
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    const targetId = this.getAttribute('href');
+                    
+                    // Handle href="#" specifically to avoid querySelector error and just scroll to top
+                    if (targetId === '#') {
+                        e.preventDefault();
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                        return; 
+                    }
+
+                    const targetElement = document.querySelector(targetId);
+
+                    if (targetElement) {
+                        e.preventDefault(); // Prevent default jump for valid IDs
+
+                        // Find all animatable elements within the target section and reset their state
+                        const elementsToReset = targetElement.querySelectorAll('.animate-on-scroll-visible');
+                        elementsToReset.forEach(el => {
+                            el.classList.remove('animate-on-scroll-visible');
+                            el.classList.add('animate-on-scroll-hidden');
+                            // Force reflow to ensure animation resets
+                            void el.offsetWidth; 
+                        });
+
+                        // Now perform the smooth scroll
+                        const headerOffset = document.querySelector('header').offsetHeight;
+                        const elementPosition = targetElement.getBoundingClientRect().top + window.scrollY;
+                        const offsetPosition = elementPosition - headerOffset - 20; // Added 20px padding
+
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: "smooth"
+                        });
+
+                        // The IntersectionObserver will now correctly re-trigger animations as it scrolls into view
+                    }
+                });
+            });
+
+            // --- Scroll Animation Logic for content sections (including reset) ---
+            const animateElements = document.querySelectorAll('.animate-on-scroll-hidden');
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const element = entry.target;
+                        // Apply stagger delay if data-index exists
+                        if (element.dataset.index) {
+                            element.style.setProperty('--delay', `${parseInt(element.dataset.index) * 0.15}s`);
+                        }
+                        element.classList.remove('animate-on-scroll-hidden');
+                        element.classList.add('animate-on-scroll-visible');
+                    } else {
+                        // When element leaves viewport, reset its animation state
+                        const element = entry.target;
+                        element.classList.remove('animate-on-scroll-visible');
+                        element.classList.add('animate-on-scroll-hidden');
+                        // Force reflow to ensure animation resets correctly when re-entering viewport
+                        void element.offsetWidth; 
+                    }
+                });
+            }, {
+                rootMargin: '0px',
+                threshold: 0.1 // Trigger when 10% of the element is visible
+            });
+
+            animateElements.forEach(element => {
+                observer.observe(element);
+            });
+
+            // --- Trailer Details Modal Logic ---
+            const viewDetailsButtons = document.querySelectorAll('.view-details-btn');
+            const trailerDetailsModal = document.getElementById('trailer-details-modal');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            const bookNowModalBtn = document.getElementById('book-now-modal-btn'); // New Book Now button in modal
+            const contactMessageTextarea = document.getElementById('message'); // The message textarea in contact form
+            
+            const modalTrailerType = document.getElementById('modal-trailer-type');
+            const modalPrice = document.getElementById('modal-price');
+            const modalWeight = document.getElementById('modal-weight');
+            const modalTires = document.getElementById('modal-tires');
+            const modalLength = document.getElementById('modal-length');
+            const modalDeposit = document.getElementById('modal-deposit');
+            const modalSpareWheel = document.getElementById('modal-spare-wheel');
+            const modalLiability = document.getElementById('modal-liability');
+            const modalLateReturn = document.getElementById('modal-late-return');
+            const modalTrailerImage = document.getElementById('modal-trailer-image'); // New: Image element in modal
+
+            viewDetailsButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Populate modal with data from data-attributes
+                    modalTrailerType.textContent = this.dataset.trailerType;
+                    modalPrice.textContent = this.dataset.price;
+                    modalWeight.textContent = this.dataset.weight;
+                    modalTires.textContent = this.dataset.tires;
+                    modalLength.textContent = this.dataset.length;
+                    modalDeposit.textContent = this.dataset.deposit;
+                    modalSpareWheel.textContent = this.dataset.spareWheel;
+                    modalLiability.textContent = this.dataset.liability;
+                    modalLateReturn.textContent = this.dataset.lateReturn;
+                    modalTrailerImage.src = this.dataset.image; // Set the image source
+                    modalTrailerImage.alt = this.dataset.trailerType; // Set alt text for accessibility
+                    
+                    // Store the trailer ID and type on the Book Now button for later use
+                    bookNowModalBtn.dataset.trailerId = this.dataset.trailerId;
+                    bookNowModalBtn.dataset.trailerType = this.dataset.trailerType;
+
+                    // Show the modal
+                    trailerDetailsModal.classList.remove('hidden');
+                    trailerDetailsModal.classList.add('active');
+                    document.body.style.overflow = 'hidden'; // Prevent scrolling background
+                });
+            });
+
+            // Close modal functions
+            if (closeModalBtn) {
+                closeModalBtn.addEventListener('click', () => {
+                    trailerDetailsModal.classList.remove('active');
+                    setTimeout(() => trailerDetailsModal.classList.add('hidden'), 300); // Hide after fade out
+                    document.body.style.overflow = '';
+                });
+            }
+
+            if (trailerDetailsModal) {
+                trailerDetailsModal.addEventListener('click', (e) => {
+                    // Close if click is on the overlay itself, not the content
+                    if (e.target === trailerDetailsModal) {
+                        trailerDetailsModal.classList.remove('active');
+                        setTimeout(() => trailerDetailsModal.classList.add('hidden'), 300); // Hide after fade out
+                        document.body.style.overflow = '';
+                    }
+                });
+            }
+
+            // Book Now button inside modal logic
+            if (bookNowModalBtn && contactMessageTextarea) {
+                bookNowModalBtn.addEventListener('click', () => {
+                    const trailerId = bookNowModalBtn.dataset.trailerId;
+                    const trailerType = bookNowModalBtn.dataset.trailerType;
+                    contactMessageTextarea.value = `I would like to inquire about booking Trailer: ${trailerType} (ID: ${trailerId}).`; // Added ID for clarity
+
+                    // Close the modal
+                    trailerDetailsModal.classList.remove('active');
+                    setTimeout(() => trailerDetailsModal.classList.add('hidden'), 300);
+                    document.body.style.overflow = '';
+
+                    // Smooth scroll to contact section
+                    const contactSection = document.getElementById('contact');
+                    if (contactSection) {
+                        const headerOffset = document.querySelector('header').offsetHeight;
+                        const elementPosition = contactSection.getBoundingClientRect().top + window.scrollY;
+                        const offsetPosition = elementPosition - headerOffset - 20;
+
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: "smooth"
+                        });
+                    }
+                });
+            } else {
+                console.warn("Book Now button in modal or contact message textarea not found.");
+            }
+
+            // --- Category Filtering Logic ---
+            const categoryButtons = document.querySelectorAll('.category-button');
+            const carTrailersSection = document.getElementById('car-trailers-section');
+            const cattleTrailersSection = document.getElementById('cattle-trailers-section');
+            const goodsTrailersSection = document.getElementById('goods-trailers-section');
+            // Store all section elements in an array for easy iteration
+            const allCategorySections = [
+                carTrailersSection,
+                cattleTrailersSection,
+                goodsTrailersSection
+            ].filter(Boolean); // Filter out any nulls if an ID is missing
+
+            function showCategory(category) {
+                allCategorySections.forEach(section => {
+                    section.classList.add('fade-out'); // Start fade out
+                    section.classList.remove('fade-in'); // Ensure fade-in is removed
+
+                    // After fade-out, hide it completely
+                    setTimeout(() => {
+                        section.classList.add('hidden-display');
+                        // Reset animation state for elements inside when hidden
+                        section.querySelectorAll('.animate-on-scroll-visible').forEach(el => {
+                            el.classList.remove('animate-on-scroll-visible');
+                            el.classList.add('animate-on-scroll-hidden');
+                            void el.offsetWidth; // Force reflow
+                        });
+                    }, 500); // Matches CSS transition duration
+                });
+
+                // Show selected category
+                setTimeout(() => {
+                    let targetSection = null;
+                    if (category === 'all') {
+                        allCategorySections.forEach(section => {
+                            section.classList.remove('hidden-display');
+                            section.classList.add('fade-in');
+                            // Elements inside will be observed by IntersectionObserver and animate
+                        });
+                    } else {
+                        targetSection = document.getElementById(`${category}-section`);
+                        if (targetSection) {
+                            targetSection.classList.remove('hidden-display');
+                            targetSection.classList.add('fade-in');
+                            // Elements inside will be observed by IntersectionObserver and animate
+                        }
+                    }
+                    // Scroll to the selected category section if not 'all' and it's above current viewport
+                    if (targetSection && targetSection.getBoundingClientRect().top < 0) {
+                        window.scrollTo({
+                            top: targetSection.offsetTop - document.querySelector('header').offsetHeight - 20,
+                            behavior: "smooth"
+                        });
+                    }
+                }, 500); // Delay showing until others are fully hidden
+
+                // Update active button state
+                categoryButtons.forEach(btn => btn.classList.remove('active'));
+                const activeBtn = document.querySelector(`.category-button[data-category="${category}"]`);
+                if (activeBtn) activeBtn.classList.add('active');
+            }
+
+            categoryButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const category = this.dataset.category;
+                    showCategory(category);
+                });
+            });
+
+            // Initial display: Default to "All Trailers"
+            showCategory('all');
+
+            // --- Gemini API Integration Logic ---
+            const userNeedsInput = document.getElementById('user-needs-input');
+            const getRecommendationBtn = document.getElementById('get-recommendation-btn');
+            const recommendationOutput = document.getElementById('recommendation-output');
+            const loadingSpinner = document.getElementById('loading-spinner');
+            const buttonText = document.getElementById('button-text');
+            // The AI recommendation link will be dynamically created, so it's not selected here statically.
+
+            if (getRecommendationBtn && userNeedsInput && recommendationOutput && loadingSpinner && buttonText) { // Ensure core elements exist
+                getRecommendationBtn.addEventListener('click', async () => {
+                    const prompt = userNeedsInput.value.trim();
+
+                    if (!prompt) {
+                        recommendationOutput.innerHTML = '<p class="text-red-500">Please describe what you need to haul.</p>';
+                        recommendationOutput.classList.remove('hidden');
+                        return;
+                    }
+
+                    // Show loading state
+                    buttonText.textContent = 'Getting Recommendation...';
+                    loadingSpinner.classList.remove('hidden');
+                    getRecommendationBtn.disabled = true;
+                    recommendationOutput.classList.add('hidden'); // Hide previous output
+
+
+                    try {
+                        let chatHistory = [];
+                        // Craft the prompt for the LLM
+                        const llmPrompt = `You are a highly knowledgeable and professional trailer rental expert from YBE Trailers. Your company offers three main types of trailers:
+                        - **Car Trailers:** For transporting vehicles. We have various sizes, including options for heavy-duty vehicles like SUVs and trucks. Specific models and their IDs are: "Double Axle Car Hauler (ID: TRL001) - for heavy vehicles like Ford Ranger, SUVs, double cab bakkies", "Compact Car Trailer (ID: TRL007) - for small cars".
+                        - **Cattle Trailers:** For transporting livestock safely and humanely. Specific models and their IDs are: "Small Livestock Trailer (ID: TRL009) - for small animals", "Standard Cattle Hauler (ID: TRL010) - for general cattle".
+                        - **Goods Trailers:** For general cargo, furniture, debris, and equipment. Specific models and their IDs are: "Utility Box Trailer (ID: TRL017) - for general household", "Medium Goods Trailer (ID: TRL019) - for a variety of medium-sized goods and household items", "Dump Trailer (ID: TRL021) - for debris".
+
+                        Based on the user's specific hauling needs, recommend the SINGLE MOST SUITABLE TRAILER TYPE AND ITS SPECIFIC TRAILER ID. The response MUST adhere to this exact format: "Recommended Trailer: [Trailer Type] (ID: [Trailer ID]). Reason: [Brief Reason about why this type is best for the described need]."
+                        
+                        Example User Need: "I need to transport a Ford Ranger."
+                        Example Response: "Recommended Trailer: Double Axle Car Hauler (ID: TRL001). Reason: Ideal for heavy vehicles like the Ford Ranger, providing necessary stability and capacity."
+
+                        Example User Need: "I need to move a small car for repairs."
+                        Example Response: "Recommended Trailer: Compact Car Trailer (ID: TRL007). Reason: Lightweight and efficient for smaller vehicle transport."
+
+                        Example User Need: "I need to move some household items."
+                        Example Response: "Recommended Trailer: Medium Goods Trailer (ID: TRL019). Reason: Versatile and efficient for a variety of household items."
+                        
+                        User need: ${prompt}`;
+
+                        chatHistory.push({ role: "user", parts: [{ text: llmPrompt }] });
+                        const payload = { contents: chatHistory };
+                        const apiKey = "AIzaSyAcGipQwY4lVmCIQT38coMION5M1B6seDw"; // Your actual API key
+                        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                        const response = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        // Check for non-200 OK responses
+                        if (!response.ok) {
+                            const errorData = await response.json();
+                            console.error("API Error:", response.status, errorData);
+                            let errorMessage = `API request failed with status ${response.status}.`;
+                            if (errorData.error && errorData.error.message) {
+                                errorMessage += ` Message: ${errorData.error.message}`;
+                            }
+                            recommendationOutput.innerHTML = `<p class="text-red-500">Error: ${errorMessage}. Please try again later.</p>`;
+                            recommendationOutput.classList.remove('hidden');
+                            return; // Exit function if response is not ok
+                        }
+
+
+                        const result = await response.json();
+
+                        if (result.candidates && result.candidates.length > 0 &&
+                            result.candidates[0].content && result.candidates[0].content.parts &&
+                            result.candidates[0].content.parts.length > 0) {
+                            let aiResponseText = result.candidates[0].content.parts[0].text;
+                            
+                            // Extract Trailer ID and Type for dynamic link
+                            const idMatch = aiResponseText.match(/\(ID: (TRL\d{3})\)/);
+                            let recommendedId = null;
+                            let recommendedType = null; 
+
+                            if (idMatch && idMatch[1]) {
+                                recommendedId = idMatch[1];
+                                const typeMatch = aiResponseText.match(/Recommended Trailer: (.*?)\s+\(ID: TRL\d{3}\)/);
+                                if (typeMatch && typeMatch[1]) {
+                                    recommendedType = typeMatch[1].trim();
+                                }
+                                
+                                // Create a clickable span for the ID within the AI's response
+                                // Ensure it's a new element each time to attach new listeners
+                                const clickableIdSpan = document.createElement('span');
+                                clickableIdSpan.className = 'ai-trailer-id-link text-blue-600 underline cursor-pointer';
+                                clickableIdSpan.textContent = `(ID: ${recommendedId})`;
+                                clickableIdSpan.dataset.trailerId = recommendedId;
+                                clickableIdSpan.dataset.trailerType = recommendedType || ''; // Store type for consistency
+
+                                // Replace the original text ID with the new clickable span within the paragraph
+                                // Create a temporary div to parse the AI response text
+                                const tempParagraph = document.createElement('p');
+                                tempParagraph.innerHTML = aiResponseText;
+
+                                // Find the text node containing the ID and replace it
+                                let foundAndReplaced = false;
+                                for (const node of tempParagraph.childNodes) {
+                                    if (node.nodeType === Node.TEXT_NODE && node.textContent.includes(`(ID: ${recommendedId})`)) {
+                                        const parts = node.textContent.split(`(ID: ${recommendedId})`);
+                                        node.textContent = parts[0]; // Text before ID
+                                        node.parentNode.insertBefore(clickableIdSpan, node.nextSibling); // Insert clickable span
+                                        if (parts[1]) { // Text after ID
+                                            const remainingTextNode = document.createTextNode(parts[1]);
+                                            clickableIdSpan.parentNode.insertBefore(remainingTextNode, clickableIdSpan.nextSibling);
+                                        }
+                                        foundAndReplaced = true;
+                                        break; // Stop after first replacement
+                                    }
+                                }
+
+                                // If direct text node replacement didn't work (e.g., if AI wrapped ID in other tags),
+                                // or as a fallback, use innerHTML replacement directly
+                                if (!foundAndReplaced) {
+                                     const clickableIdHtml = `<span class="ai-trailer-id-link text-blue-600 underline cursor-pointer" data-trailer-id="${recommendedId}" data-trailer-type="${recommendedType || ''}">(ID: ${recommendedId})</span>`;
+                                     aiResponseText = aiResponseText.replace(/\(ID: (TRL\d{3})\)/, clickableIdHtml);
+                                     recommendationOutput.innerHTML = `<p class="font-semibold mb-2">Our Recommendation:</p><p>${aiResponseText}</p>`;
+                                } else {
+                                    // If replaced via DOM manipulation, use the tempParagraph's innerHTML
+                                    recommendationOutput.innerHTML = `<p class="font-semibold mb-2">Our Recommendation:</p><p>${tempParagraph.innerHTML}</p>`;
+                                }
+                                
+                                recommendationOutput.classList.remove('hidden');
+
+                                // Re-attach event listener to the dynamically created link after updating innerHTML
+                                // This is CRUCIAL: Must select the newly rendered element.
+                                const reRenderedLink = recommendationOutput.querySelector('.ai-trailer-id-link');
+                                if (reRenderedLink) {
+                                    reRenderedLink.addEventListener('click', () => {
+                                        const clickedId = reRenderedLink.dataset.trailerId;
+                                        if (clickedId) {
+                                            const targetViewDetailsButton = document.querySelector(`.view-details-btn[data-trailer-id="${clickedId}"]`);
+                                            if (targetViewDetailsButton) {
+                                                // Before clicking the button, ensure its category is active
+                                                let categoryToActivate = 'all'; // Default
+                                                if (clickedId.startsWith('TRL00') && clickedId !== 'TRL009') { // Assuming car trailers up to TRL008
+                                                    categoryToActivate = 'car-trailers';
+                                                } else if (clickedId.startsWith('TRL0') || clickedId.startsWith('TRL1')) { // Assuming cattle are 009-016
+                                                    categoryToActivate = 'cattle-trailers';
+                                                } else if (clickedId.startsWith('TRL0') || clickedId.startsWith('TRL2')) { // Assuming goods are 017 and up
+                                                    categoryToActivate = 'goods-trailers';
+                                                }
+                                                // Correctly determine category from ID (more robust)
+                                                if (clickedId >= "TRL001" && clickedId <= "TRL008") {
+                                                    categoryToActivate = "car-trailers";
+                                                } else if (clickedId >= "TRL009" && clickedId <= "TRL016") {
+                                                    categoryToActivate = "cattle-trailers";
+                                                } else if (clickedId >= "TRL017" && clickedId <= "TRL027") {
+                                                    categoryToActivate = "goods-trailers";
+                                                }
+
+
+                                                showCategory(categoryToActivate); // Call showCategory to make the relevant section visible
+                                                
+                                                // Give a small delay for category transition before opening modal
+                                                setTimeout(() => {
+                                                    targetViewDetailsButton.click(); // Trigger the modal
+                                                }, 600); // Slightly longer delay to ensure category is visible first
+                                            } else {
+                                                console.warn(`Could not find 'View Details' button for ID: ${clickedId}.`);
+                                            }
+                                        }
+                                    });
+                                }
+
+                            } else {
+                                console.warn("AI response did not contain a recognizable Trailer ID pattern:", aiResponseText);
+                                recommendationOutput.innerHTML = `<p class="font-semibold mb-2">Our Recommendation:</p><p>${aiResponseText}</p>`;
+                                recommendationOutput.classList.remove('hidden');
+                            }
+
+                        } else {
+                            // Handle cases where response structure is unexpected
+                            console.warn("Unexpected API response structure:", result);
+                            recommendationOutput.innerHTML = '<p class="text-red-500">Sorry, I couldn\'t get a clear recommendation. The AI response was empty or malformed. Please try rephrasing your request.</p>';
+                            recommendationOutput.classList.remove('hidden');
+                        }
+                    } catch (error) {
+                        console.error("Network or unexpected error:", error);
+                        recommendationOutput.innerHTML = '<p class="text-red-500">An unexpected error occurred. Please check your internet connection or try again later.</p>';
+                        recommendationOutput.classList.remove('hidden');
+                    } finally {
+                        // Hide loading state
+                        buttonText.textContent = '✨ Get Recommendation';
+                        loadingSpinner.classList.add('hidden');
+                        getRecommendationBtn.disabled = false;
+                    }
+                });
+            } else {
+                console.warn("AI Advisor elements not found. AI Advisor functionality may be impaired.");
+            }
+        });
+    </script>
+</body>
+</html>

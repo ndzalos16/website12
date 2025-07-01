@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vixxy Extraaa - Exquisite Jewellery</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter for general text, and Playfair Display for headings -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Custom styles to ensure the Playfair Display font is applied correctly */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fce4ec; /* Light pink background */
+            color: #333; /* Darker text for better readability */
+            line-height: 1.6;
+            overflow-x: hidden; /* Crucial: Prevent horizontal scroll from overflowing content */
+        }
+        .font-playfair {
+            font-family: 'Playfair Display', serif;
+        }
+        .bg-gradient-soft-pink {
+            background: linear-gradient(135deg, #fce4ec 0%, #ffe0e9 100%);
+        }
+        .text-rose-800 {
+            color: #880e4f; /* Darker rose for contrast */
+        }
+        .shadow-soft {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+        /* Smooth scroll for navigation */
+        html {
+            scroll-behavior: smooth;
+        }
+        /* Custom button styling for hover effects */
+        .btn-primary {
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+        }
+        /* Product card hover effect */
+        .product-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Animations for Hero Section elements */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero-title {
+            animation: slideInUp 1s ease-out forwards;
+        }
+        .hero-tagline {
+            animation: fadeIn 1.5s ease-out forwards;
+            animation-delay: 0.5s;
+            opacity: 0; /* Start hidden */
+        }
+        .hero-button {
+            animation: fadeIn 1.5s ease-out forwards;
+            animation-delay: 1s;
+            opacity: 0; /* Start hidden */
+        }
+
+        /* Scroll-triggered animations for sections and product cards */
+        .animated-item {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .animated-item.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Staggered animation for product cards within a section */
+        .product-grid .product-card {
+            transition-delay: var(--delay);
+        }
+
+        /* Mobile Navigation Specific Styles */
+        .mobile-menu {
+            transition: transform 0.3s ease-out;
+            transform: translateX(100%); /* Start off-screen */
+        }
+        .mobile-menu.active {
+            transform: translateX(0); /* Slide in */
+        }
+
+        /* Explicitly hide desktop nav on small screens to prevent overflow */
+        @media (max-width: 767px) { /* Tailwind's md breakpoint is 768px */
+            .desktop-nav-links {
+                display: none !important; /* Use !important to override potential conflicts */
+            }
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- Navigation Bar -->
+    <nav class="sticky top-0 z-50 w-full bg-white bg-opacity-95 shadow-md py-4 px-6 flex justify-between items-center rounded-b-xl">
+        <div class="flex items-center">
+            <a href="#home" class="font-playfair text-3xl font-bold text-rose-800 hover:text-rose-900 transition duration-300">vixxy extraaa</a>
+        </div>
+        <!-- Desktop Navigation -->
+        <ul class="desktop-nav-links hidden md:flex space-x-6">
+            <li><a href="#home" class="text-gray-700 hover:text-rose-800 text-lg font-medium transition duration-300">Home</a></li>
+            <li><a href="#rings" class="text-gray-700 hover:text-rose-800 text-lg font-medium transition duration-300">Rings</a></li>
+            <li><a href="#earrings" class="text-gray-700 hover:text-rose-800 text-lg font-medium transition duration-300">Earrings</a></li>
+            <li><a href="#necklaces" class="text-gray-700 hover:text-rose-800 text-lg font-medium transition duration-300">Necklaces</a></li>
+            <li><a href="#bagels" class="text-gray-700 hover:text-rose-800 text-lg font-medium transition duration-300">Bagels</a></li>
+            <li><a href="#about" class="text-gray-700 hover:text-rose-800 text-lg font-medium transition duration-300">About Us</a></li>
+            <li><a href="#contact" class="text-gray-700 hover:text-rose-800 text-lg font-medium transition duration-300">Contact</a></li>
+        </ul>
+
+        <!-- Mobile Hamburger Icon -->
+        <div class="md:hidden">
+            <button id="mobile-menu-button" class="text-gray-700 hover:text-rose-800 focus:outline-none">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu (Off-canvas) -->
+    <div id="mobile-menu" class="mobile-menu fixed top-0 right-0 h-full w-64 bg-white shadow-lg p-6 z-50 md:hidden flex flex-col">
+        <div class="flex justify-end mb-8">
+            <button id="close-mobile-menu-button" class="text-gray-700 hover:text-rose-800 focus:outline-none">
+                <i class="fas fa-times text-2xl"></i>
+            </button>
+        </div>
+        <ul class="flex flex-col space-y-4">
+            <li><a href="#home" class="block text-gray-700 hover:text-rose-800 text-xl font-medium transition duration-300 py-2 mobile-menu-link">Home</a></li>
+            <li><a href="#rings" class="block text-gray-700 hover:text-rose-800 text-xl font-medium transition duration-300 py-2 mobile-menu-link">Rings</a></li>
+            <li><a href="#earrings" class="block text-gray-700 hover:text-rose-800 text-xl font-medium transition duration-300 py-2 mobile-menu-link">Earrings</a></li>
+            <li><a href="#necklaces" class="block text-gray-700 hover:text-rose-800 text-xl font-medium transition duration-300 py-2 mobile-menu-link">Necklaces</a></li>
+            <li><a href="#bagels" class="block text-gray-700 hover:text-rose-800 text-xl font-medium transition duration-300 py-2 mobile-menu-link">Bagels</a></li>
+            <li><a href="#about" class="block text-gray-700 hover:text-rose-800 text-xl font-medium transition duration-300 py-2 mobile-menu-link">About Us</a></li>
+            <li><a href="#contact" class="block text-gray-700 hover:text-rose-800 text-xl font-medium transition duration-300 py-2 mobile-menu-link">Contact</a></li>
+        </ul>
+    </div>
+
+    <!-- Hero Section -->
+    <section id="home" class="relative bg-gradient-soft-pink h-[60vh] md:h-[70vh] flex items-center justify-center text-center overflow-hidden rounded-b-xl shadow-lg mb-12">
+        <!-- Background image/pattern - using the provided earring image. -->
+        <!-- IMPORTANT: This assumes '99d9369c-a948-4cc4-b06e-1d09398d0d67-removebg-preview.png' is in the same directory as this HTML file when hosted locally. -->
+        <img src="99d9369c-a948-4cc4-b06e-1d09398d0d67-removebg-preview.png" 
+             alt="Elegant earring background" 
+             class="absolute w-1/2 h-1/2 object-contain opacity-50 left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2"
+             onerror="this.onerror=null; this.src='https://placehold.co/1920x1080/fce4ec/880e4f?text=Image+Not+Found';">
+        <div class="relative z-10 p-4">
+            <h1 class="font-playfair text-6xl md:text-8xl font-bold text-rose-800 mb-6 drop-shadow-lg hero-title">vixxy extraaa</h1>
+            <p class="text-2xl md:text-3xl text-gray-700 mb-8 max-w-2xl mx-auto hero-tagline">Discover timeless elegance and unique pieces that speak to your style.</p>
+            <a href="#rings" class="inline-block bg-rose-700 text-white font-semibold py-3 px-8 rounded-full text-xl btn-primary shadow-lg hero-button">Explore Our Collection</a>
+        </div>
+    </section>
+
+    <!-- Main Content Wrapper -->
+    <div class="w-full max-w-4xl mx-auto p-4 md:p-8 bg-white rounded-xl shadow-soft my-8 flex-grow">
+
+        <!-- Rings Section -->
+        <section id="rings" class="mb-16 animated-item">
+            <h2 class="font-playfair text-4xl md:text-5xl font-bold text-center text-rose-800 mb-10">Our Rings</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8 product-grid">
+                <!-- Ring Product Card 1 (Elegant Ring - moved here) -->
+                <div class="bg-white rounded-lg overflow-hidden shadow-md p-6 product-card" style="--delay: 0s;">
+                    <img src="WhatsApp Image 2025-07-01 at 14.03.53_3ce2e2d0.jpg" 
+                         alt="Elegant Ring" 
+                         class="w-7/10 h-64 rounded-md mb-4 object-contain mx-auto"
+                         onerror="this.onerror=null; this.src='https://placehold.co/600x400/ffe0e9/880e4f?text=Elegant+Ring+Fallback';">
+                    <h3 class="font-playfair text-2xl font-semibold text-rose-700 mb-2">Elegant Ring</h3>
+                    <p class="text-gray-600 text-lg mb-3">A beautifully designed ring, perfect for adding a touch of sophistication to any look.</p>
+                    <p class="text-rose-800 font-bold text-xl mt-3">R100</p>
+                    <button class="mt-4 w-full bg-rose-600 text-white py-2 rounded-md hover:bg-rose-700 transition duration-300 btn-primary">View Details</button>
+                </div>
+                <!-- Ring Product Card 2 (Coming Soon) -->
+                <div class="bg-white rounded-lg overflow-hidden shadow-md p-6 product-card" style="--delay: 0.1s;">
+                    <img src="https://placehold.co/600x400/ffe0e9/880e4f?text=Coming+Soon" alt="Product Coming Soon" class="w-full h-64 rounded-md mb-4 object-cover">
+                    <h3 class="font-playfair text-2xl font-semibold text-rose-700 mb-2">Coming Soon</h3>
+                    <p class="text-gray-600 text-lg mb-3">Details about this exciting new product will be available soon!</p>
+                    <p class="text-rose-800 font-bold text-xl mt-3">Price: TBD</p>
+                    <button class="mt-4 w-full bg-rose-600 text-white py-2 rounded-md hover:bg-rose-700 transition duration-300 btn-primary">View Details</button>
+                </div>
+                <!-- Ring Product Card 3 (Coming Soon) -->
+                <div class="bg-white rounded-lg overflow-hidden shadow-md p-6 product-card" style="--delay: 0.2s;">
+                    <img src="https://placehold.co/600x400/ffe0e9/880e4f?text=Coming+Soon" alt="Product Coming Soon" class="w-full h-64 rounded-md mb-4 object-cover">
+                    <h3 class="font-playfair text-2xl font-semibold text-rose-700 mb-2">Coming Soon</h3>
+                    <p class="text-gray-600 text-lg mb-3">Details about this exciting new product will be available soon!</p>
+                    <p class="text-rose-800 font-bold text-xl mt-3">Price: TBD</p>
+                    <button class="mt-4 w-full bg-rose-600 text-white py-2 rounded-md hover:bg-rose-700 transition duration-300 btn-primary">View Details</button>
+                </div>
+                 <!-- Ring Product Card 4 (Coming Soon) -->
+                 <div class="bg-white rounded-lg overflow-hidden shadow-md p-6 product-card" style="--delay: 0.3s;">
+                    <img src="https://placehold.co/600x400/ffe0e9/880e4f?text=Coming+Soon" alt="Product Coming Soon" class="w-full h-64 rounded-md mb-4 object-cover">
+                    <h3 class="font-playfair text-2xl font-semibold text-rose-700 mb-2">Coming Soon</h3>
+                    <p class="text-gray-600 text-lg mb-3">Details about this exciting new product will be available soon!</p>
+                    <p class="text-rose-800 font-bold text-xl mt-3">Price: TBD</p>
+                    <button class="mt-4 w-full bg-rose-600 text-white py-2 rounded-md hover:bg-rose-700 transition duration-300 btn-primary">View Details</button>
+                </div>
+            </div>
+            <div class="text-center mt-10">
+                <button class="bg-rose-700 text-white font-semibold py-3 px-8 rounded-full text-xl btn-primary shadow-lg">View All Rings</button>
+            </div>
+        </section>
+
+        <!-- Earrings Section -->
+        <section id="earrings" class="mb-16 animated-item">
+            <h2 class="font-playfair text-4xl md:text-5xl font-bold text-center text-rose-800 mb-10">Our Earrings</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 product-grid">
+                <!-- Updated Bean (brown) Earring Product Card -->
+                <div class="bg-white rounded-lg overflow-hidden shadow-md p-6 product-card" style="--delay: 0s;">
+                    <img src="bf9806e9-6cf8-42b2-a092-8960055f1a92.png" 
+                         alt="Brown Bean Earrings" 
+                         class="w-full h-64 rounded-md mb-4 object-cover"
+                         onerror="this.onerror=null; this.src='https://placehold.co/600x400/ffe0e9/880e4f?text=Bean+Earrings+Fallback';">
+                    <h3 class="font-playfair text-3xl font-semibold text-rose-700 mb-2">Bean (brown)</h3>
+                    <p class="text-gray-600 text-lg mb-3">Brown plastic shaped earrings, a playful yet chic accessory.</p>
+                    <p class="text-rose-800 font-bold text-2xl">R60</p>
+                    <button class="mt-4 w-full bg-rose-600 text-white py-2 rounded-md hover:bg-rose-700 transition duration-300 btn-primary">View Details</button>
+                </div>
+                <!-- Existing Pearl Earring Product Card (Coming Soon) -->
+                <div class="bg-white rounded-lg overflow-hidden shadow-md p-6 product-card" style="--delay: 0.1s;">
+                    <img src="https://placehold.co/600x400/ffe0e9/880e4f?text=Coming+Soon" alt="Product Coming Soon" class="w-full h-64 rounded-md mb-4 object-cover">
+                    <h3 class="font-playfair text-3xl font-semibold text-rose-700 mb-2">Coming Soon</h3>
+                    <p class="text-gray-600 text-lg mb-3">Details about this exciting new product will be available soon!</p>
+                    <p class="text-rose-800 font-bold text-2xl">Price: TBD</p>
+                    <button class="mt-4 w-full bg-rose-600 text-white py-2 rounded-md hover:bg-rose-700 transition duration-300 btn-primary">View Details</button>
+                </div>
+            </div>
+            <div class="text-center mt-10">
+                <button class="bg-rose-700 text-white font-semibold py-3 px-8 rounded-full text-xl btn-primary shadow-lg">View All Earrings</button>
+            </div>
+        </section>
+
+        <!-- Necklaces Section -->
+        <section id="necklaces" class="mb-16 animated-item">
+            <h2 class="font-playfair text-4xl md:text-5xl font-bold text-center text-rose-800 mb-10">Our Necklaces</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8 product-grid">
+                <!-- Stainless Steel Necklace Product Card -->
+                <div class="bg-white rounded-lg overflow-hidden shadow-md p-6 product-card" style="--delay: 0s;">
+                    <img src="0a41cfcc-0a07-4620-a6d5-9f765bf4c338.png" 
+                         alt="Stainless Steel Necklace" 
+                         class="w-7/10 h-64 rounded-md mb-4 object-contain mx-auto"
+                         onerror="this.onerror=null; this.src='https://placehold.co/600x400/ffe0e9/880e4f?text=Necklace+Fallback';">
+                    <h3 class="font-playfair text-2xl font-semibold text-rose-700 mb-2">Stainless Steel Necklace</h3>
+                    <p class="text-gray-600 text-lg mb-3">A durable and elegant stainless steel necklace, perfect for daily wear or special occasions.</p>
+                    <p class="text-rose-800 font-bold text-xl mt-3">R90</p>
+                    <button class="mt-4 w-full bg-rose-600 text-white py-2 rounded-md hover:bg-rose-700 transition duration-300 btn-primary">View Details</button>
+                </div>
+                <!-- Placeholder for more necklaces (Coming Soon) -->
+                <div class="bg-white rounded-lg overflow-hidden shadow-md p-6 product-card" style="--delay: 0.1s;">
+                    <img src="https://placehold.co/600x400/ffe0e9/880e4f?text=Coming+Soon" alt="Product Coming Soon" class="w-full h-64 rounded-md mb-4 object-cover">
+                    <h3 class="font-playfair text-2xl font-semibold text-rose-700 mb-2">Coming Soon</h3>
+                    <p class="text-gray-600 text-lg mb-3">Details about this exciting new product will be available soon!</p>
+                    <p class="text-rose-800 font-bold text-xl mt-3">Price: TBD</p>
+                    <button class="mt-4 w-full bg-rose-600 text-white py-2 rounded-md hover:bg-rose-700 transition duration-300 btn-primary">View Details</button>
+                </div>
+            </div>
+            <div class="text-center mt-10">
+                <button class="bg-rose-700 text-white font-semibold py-3 px-8 rounded-full text-xl btn-primary shadow-lg">View All Necklaces</button>
+            </div>
+        </section>
+
+        <!-- Bagels Section (New Category - Coming Soon) -->
+        <section id="bagels" class="mb-16 animated-item">
+            <h2 class="font-playfair text-4xl md:text-5xl font-bold text-center text-rose-800 mb-10">Our Bagels</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8 product-grid">
+                <!-- Bagel Product Card 1 (Coming Soon) -->
+                <div class="bg-white rounded-lg overflow-hidden shadow-md p-6 product-card" style="--delay: 0s;">
+                    <img src="https://placehold.co/600x400/ffe0e9/880e4f?text=Coming+Soon" alt="Product Coming Soon" class="w-full h-64 rounded-md mb-4 object-cover">
+                    <h3 class="font-playfair text-2xl font-semibold text-rose-700 mb-2">Coming Soon</h3>
+                    <p class="text-gray-600 text-lg mb-3">Details about this exciting new product will be available soon!</p>
+                    <p class="text-rose-800 font-bold text-xl mt-3">Price: TBD</p>
+                    <button class="mt-4 w-full bg-rose-600 text-white py-2 rounded-md hover:bg-rose-700 transition duration-300 btn-primary">View Details</button>
+                </div>
+                <!-- Bagel Product Card 2 (Coming Soon) -->
+                <div class="bg-white rounded-lg overflow-hidden shadow-md p-6 product-card" style="--delay: 0.1s;">
+                    <img src="https://placehold.co/600x400/ffe0e9/880e4f?text=Coming+Soon" alt="Product Coming Soon" class="w-full h-64 rounded-md mb-4 object-cover">
+                    <h3 class="font-playfair text-2xl font-semibold text-rose-700 mb-2">Coming Soon</h3>
+                    <p class="text-gray-600 text-lg mb-3">Details about this exciting new product will be available soon!</p>
+                    <p class="text-rose-800 font-bold text-xl mt-3">Price: TBD</p>
+                    <button class="mt-4 w-full bg-rose-600 text-white py-2 rounded-md hover:bg-rose-700 transition duration-300 btn-primary">View Details</button>
+                </div>
+            </div>
+            <div class="text-center mt-10">
+                <button class="bg-rose-700 text-white font-semibold py-3 px-8 rounded-full text-xl btn-primary shadow-lg">View All Bagels</button>
+            </div>
+        </section>
+
+        <!-- About Us Section -->
+        <section id="about" class="mb-16 animated-item">
+            <h2 class="font-playfair text-4xl md:text-5xl font-bold text-rose-800 mb-8">About Vixxy Extraaa</h2>
+            <div class="bg-white rounded-lg shadow-md p-8 max-w-3xl mx-auto">
+                <p class="text-lg text-gray-700 mb-4">
+                    Welcome to **Vixxy Extraaa**, where elegance meets individuality. Established in 2023, our passion is to curate a collection of exquisite jewellery that empowers you to express your unique style. We believe that every piece tells a story, and we are dedicated to helping you find the perfect one to tell yours.
+                </p>
+                <p class="text-lg text-gray-700 mb-4">
+                    From delicate rings that whisper sophistication to bold earrings that make a statement, each item in our collection is thoughtfully selected for its quality, craftsmanship, and timeless appeal. We strive to bring you pieces that are not just accessories, but treasures to cherish for years to come.
+                </p>
+                <p class="text-lg text-gray-700">
+                    Thank you for choosing Vixxy Extraaa. We are delighted to be a part of your journey in discovering beautiful adornments.
+                </p>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="mb-16 animated-item">
+            <h2 class="font-playfair text-4xl md:text-5xl font-bold text-rose-800 mb-8">Get in Touch</h2>
+            <div class="bg-white rounded-lg shadow-md p-8 max-w-2xl mx-auto">
+                <p class="text-lg text-gray-700 mb-6">Have a question or a special request? We'd love to hear from you!</p>
+                <form class="space-y-6">
+                    <div>
+                        <label for="name" class="block text-left text-gray-700 text-lg font-medium mb-2">Name</label>
+                        <input type="text" id="name" name="name" placeholder="Your Name" class="w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-rose-500 transition duration-200">
+                    </div>
+                    <div>
+                        <label for="email" class="block text-left text-gray-700 text-lg font-medium mb-2">Email</label>
+                        <input type="email" id="email" name="email" placeholder="your.email@example.com" class="w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-rose-500 transition duration-200">
+                    </div>
+                    <div>
+                        <label for="message" class="block text-left text-gray-700 text-lg font-medium mb-2">Message</label>
+                        <textarea id="message" name="message" rows="5" placeholder="Your message..." class="w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-rose-500 transition duration-200"></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-rose-700 text-white font-semibold py-3 rounded-full text-xl btn-primary shadow-lg">Send Message</button>
+                </form>
+                <div class="mt-8 text-gray-700 text-lg">
+                    <p class="mb-2"><i class="fas fa-envelope mr-2 text-rose-700"></i> Email: info@vixxyextraaa.com</p>
+                    <p class="mb-2"><i class="fas fa-phone mr-2 text-rose-700"></i> Phone: +27 12 345 6789</p>
+                    <p><i class="fas fa-map-marker-alt mr-2 text-rose-700"></i> Address: 123 Elegance Street, Pretoria, South Africa</p>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Footer Section -->
+    <footer class="w-full py-8 text-center text-gray-600 text-lg bg-gradient-soft-pink rounded-t-xl shadow-inner mt-auto">
+        <div class="max-w-4xl mx-auto px-4">
+            <p>&copy; 2025 Vixxy Extraaa. All rights reserved.</p>
+            <p class="mt-2 text-rose-800 font-semibold text-xl">Follow us: <a href="https://instagram.com/vixxy_extraaa" target="_blank" class="hover:underline">@vixxy_extraaa</a></p>
+            <div class="flex justify-center space-x-6 mt-4">
+                <a href="#" class="text-rose-700 hover:text-rose-900 transition duration-300"><i class="fab fa-instagram fa-2x"></i></a>
+                <a href="#" class="text-rose-700 hover:text-rose-900 transition duration-300"><i class="fab fa-facebook fa-2x"></i></a>
+                <a href="#" class="text-rose-700 hover:text-rose-900 transition duration-300"><i class="fab fa-twitter fa-2x"></i></a>
+            </div>
+            <div class="mt-4 text-sm">
+                <a href="#" class="text-gray-600 hover:text-rose-800 mx-2">Privacy Policy</a> |
+                <a href="#" class="text-gray-600 hover:text-rose-800 mx-2">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // JavaScript for OOP logic and enhanced interactivity
+        class VixxyExtraaaApp {
+            constructor() {
+                this.initSmoothScrolling();
+                this.initProductButtons();
+                this.initContactForm();
+                this.initScrollAnimations();
+                this.initMobileMenu(); // Initialize mobile menu
+            }
+
+            /**
+             * Initializes smooth scrolling for all navigation links.
+             */
+            initSmoothScrolling() {
+                document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                    anchor.addEventListener('click', function (e) {
+                        e.preventDefault(); // Prevent default anchor click behavior
+
+                        const targetId = this.getAttribute('href');
+                        const targetElement = document.querySelector(targetId);
+
+                        if (targetElement) {
+                            // Scroll to the target element with smooth behavior
+                            targetElement.scrollIntoView({
+                                behavior: 'smooth'
+                            });
+                        }
+                    });
+                });
+            }
+
+            /**
+             * Initializes click handlers for product detail buttons.
+             * Currently, this just logs a message, but can be extended for modals or new pages.
+             */
+            initProductButtons() {
+                document.querySelectorAll('.product-card button').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const productName = this.closest('.product-card').querySelector('h3').textContent;
+                        console.log(`View Details clicked for: ${productName}`);
+                        // In a real application, you would open a modal here or navigate to a product page.
+                        // For this example, we'll just show a simple alert-like message in the console.
+                        // If you want a visual message, you'd implement a custom modal UI.
+                    });
+                });
+
+                document.querySelectorAll('.text-center button').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const buttonText = this.textContent;
+                        console.log(`${buttonText} button clicked.`);
+                        // This could lead to a dedicated product listing page.
+                    });
+                });
+            }
+
+            /**
+             * Initializes the contact form submission.
+             * Prevents default submission and logs form data.
+             */
+            initContactForm() {
+                const contactForm = document.querySelector('#contact form');
+                if (contactForm) {
+                    contactForm.addEventListener('submit', function(e) {
+                        e.preventDefault(); // Prevent default form submission
+
+                        // Get form data
+                        const name = document.getElementById('name').value;
+                        const email = document.getElementById('email').value;
+                        const message = document.getElementById('message').value;
+
+                        console.log('Contact Form Submitted:');
+                        console.log(`Name: ${name}`);
+                        console.log(`Email: ${email}`);
+                        console.log(`Message: ${message}`);
+
+                        // In a real application, you would send this data to a server
+                        // using fetch() or XMLHttpRequest.
+                        // For now, we'll just log it and clear the form.
+
+                        // Clear the form fields
+                        contactForm.reset();
+
+                        // Provide user feedback (e.g., a success message, not using alert())
+                        console.log('Thank you for your message! We will get back to you soon.');
+                        // You could implement a small, temporary success message div here.
+                    });
+                }
+            }
+
+            /**
+             * Initializes scroll-triggered animations using Intersection Observer.
+             */
+            initScrollAnimations() {
+                const animatedElements = document.querySelectorAll('.animated-item');
+                const productCards = document.querySelectorAll('.product-grid .product-card');
+
+                const observerOptions = {
+                    root: null, /* viewport as the root */
+                    rootMargin: '0px',
+                    threshold: 0.1 /* 10% of element visible to trigger */
+                };
+
+                const observerCallback = (entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('is-visible');
+                            observer.unobserve(entry.target); // Stop observing once animated
+                        }
+                    });
+                };
+
+                const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+                animatedElements.forEach(el => observer.observe(el));
+
+                // Special handling for staggered product card animations
+                const productCardObserverCallback = (entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            // Apply staggered animation to children
+                            Array.from(entry.target.children).forEach((card, index) => {
+                                if (card.classList.contains('product-card')) {
+                                    card.style.setProperty('--delay', `${index * 0.1}s`); // Stagger by 0.1s
+                                    card.classList.add('is-visible'); // Trigger individual card animation
+                                }
+                            });
+                            observer.unobserve(entry.target); // Unobserve the grid container
+                        }
+                    });
+                };
+
+                const productGridObserver = new IntersectionObserver(productCardObserverCallback, observerOptions);
+                document.querySelectorAll('.product-grid').forEach(grid => {
+                    // Initially hide all product cards within the grid
+                    Array.from(grid.children).forEach(card => card.classList.add('animated-item'));
+                    productGridObserver.observe(grid);
+                });
+            }
+
+            /**
+             * Initializes the mobile menu functionality.
+             */
+            initMobileMenu() {
+                const mobileMenuButton = document.getElementById('mobile-menu-button');
+                const closeMobileMenuButton = document.getElementById('close-mobile-menu-button');
+                const mobileMenu = document.getElementById('mobile-menu');
+                const mobileMenuLinks = document.querySelectorAll('.mobile-menu-link');
+
+                if (mobileMenuButton) {
+                    mobileMenuButton.addEventListener('click', () => {
+                        mobileMenu.classList.add('active');
+                    });
+                }
+
+                if (closeMobileMenuButton) {
+                    closeMobileMenuButton.addEventListener('click', () => {
+                        mobileMenu.classList.remove('active');
+                    });
+                }
+
+                // Close mobile menu when a link is clicked
+                mobileMenuLinks.forEach(link => {
+                    link.addEventListener('click', () => {
+                        mobileMenu.classList.remove('active');
+                    });
+                });
+            }
+        }
+
+        // Initialize the application once the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new VixxyExtraaaApp();
+        });
+    </script>
+</body>
+</html>

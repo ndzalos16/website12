@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phindy P Beauty Bar - Your Destination for Beauty</title>
+    <!-- Tailwind CSS CDN for easy styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for 'Inter' and 'Dancing Script' (for cursive effect) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles to enhance Tailwind, especially for rounded corners and overall aesthetic */
+        body {
+            font-family: 'Inter', sans-serif;
+            @apply bg-cream-50 text-gray-800; /* A soft cream background and dark grey text */
+        }
+        .container {
+            @apply mx-auto px-4 sm:px-6 lg:px-8;
+        }
+        /* General styling for rounded corners on elements */
+        .rounded-lg-custom {
+            border-radius: 0.75rem; /* Equivalent to Tailwind's rounded-lg */
+        }
+        /* Custom colors for the beauty theme */
+        .bg-blush-pink { background-color: #F8D9E3; } /* Soft pink */
+        .text-blush-pink { color: #F8D9E3; }
+        .bg-rose-gold { background-color: #B76E79; } /* Deeper rose gold */
+        .text-rose-gold { color: #B76E79; }
+        .bg-light-grey { background-color: #F0F0F0; } /* Light grey for subtle contrast */
+        .text-light-grey { color: #F0F0F0; }
+        .bg-cream-50 { background-color: #FFFDF9; } /* Very light cream */
+        .text-cream-50 { color: #FFFDF9; }
+
+        /* Custom style for the cursive company name */
+        .font-cursive {
+            font-family: 'Dancing Script', cursive;
+            font-weight: 700; /* Make it bold for better visibility */
+        }
+
+        /* Smooth scrolling for anchor links */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body class="bg-cream-50 text-gray-800">
+
+    <!-- Header Section -->
+    <header class="bg-white shadow-sm py-4 fixed w-full z-10 top-0 rounded-b-lg-custom">
+        <div class="container relative flex justify-between items-center">
+            <!-- Logo - Image only, links to home -->
+            <a href="index.html" class="flex items-center z-20">
+                <img src="WhatsApp_Image_2025-06-30_at_02.13.10_4a3d395a-removebg-preview (1).png" alt="Phindy P Beauty Bar Logo" class="h-10 w-auto">
+            </a>
+
+            <!-- Company Name - Centered for all screen sizes -->
+            <div class="absolute inset-x-0 text-center z-10">
+                <span class="text-3xl font-bold text-rose-gold font-cursive">Phindy P</span>
+            </div>
+
+            <!-- Navigation Menu - Desktop only -->
+            <nav class="hidden md:flex space-x-6 z-20">
+                <a href="#hero" class="text-gray-600 hover:text-rose-gold transition duration-300">Home</a>
+                <a href="#services" class="text-gray-600 hover:text-rose-gold transition duration-300">Services</a>
+                <a href="#about" class="text-gray-600 hover:text-rose-gold transition duration-300">About Us</a>
+                <a href="#gallery" class="text-gray-600 hover:text-rose-gold transition duration-300">Gallery</a>
+                <a href="#contact" class="text-gray-600 hover:text-rose-gold transition duration-300">Contact</a>
+                <a href="#book-now" class="bg-rose-gold text-white px-4 py-2 rounded-lg-custom hover:bg-blush-pink transition duration-300 shadow-md">Book Now</a>
+            </nav>
+
+            <!-- Mobile Menu Button (Hamburger) -->
+            <div class="md:hidden z-20">
+                <button id="mobile-menu-button" class="text-gray-600 focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Overlay -->
+        <div id="mobile-menu" class="hidden md:hidden fixed inset-0 bg-white bg-opacity-95 z-20 flex flex-col items-center justify-center space-y-6">
+            <button id="close-mobile-menu" class="absolute top-4 right-4 text-gray-600 focus:outline-none">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+            <!-- Company Name for Mobile Menu - Now only "Phindy P" -->
+            <div class="mb-8 text-center">
+                <span class="text-4xl font-bold text-rose-gold font-cursive">Phindy P</span>
+            </div>
+            <a href="#hero" class="text-gray-800 text-2xl hover:text-rose-gold transition duration-300" onclick="closeMobileMenu()">Home</a>
+            <a href="#services" class="text-gray-800 text-2xl hover:text-rose-gold transition duration-300" onclick="closeMobileMenu()">Services</a>
+            <a href="#about" class="text-gray-800 text-2xl hover:text-rose-gold transition duration-300" onclick="closeMobileMenu()">About Us</a>
+            <a href="#gallery" class="text-gray-800 text-2xl hover:text-rose-gold transition duration-300" onclick="closeMobileMenu()">Gallery</a>
+            <a href="#contact" class="text-gray-800 text-2xl hover:text-rose-gold transition duration-300" onclick="closeMobileMenu()">Contact</a>
+            <a href="#book-now" class="bg-rose-gold text-white px-6 py-3 rounded-lg-custom text-2xl hover:bg-blush-pink transition duration-300 shadow-lg" onclick="closeMobileMenu()">Book Now</a>
+        </div>
+    </header>
+
+    <main class="pt-20"> <!-- Added padding-top to account for fixed header -->
+        <!-- Hero Section -->
+        <section id="hero" class="relative bg-blush-pink py-12 lg:py-20 flex items-center justify-center text-center rounded-b-xl overflow-hidden shadow-lg">
+            <!-- Removed the absolute inset-0 div as the image itself will be positioned -->
+            <!-- Hero background image - Updated with your specified image and styling -->
+            <img
+                src="3c2a0ebf-751c-4f6a-a1cb-61d87f4497eb-removebg-preview.png"
+                alt="Elegant Beauty Bar Interior"
+                class="absolute bottom-0 left-1/2 transform -translate-x-1/2 h-[400px] object-contain opacity-60"
+            />
+            <div class="relative z-10 text-white p-6 rounded-lg-custom max-w-2xl bg-black bg-opacity-30 backdrop-blur-sm">
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-4 drop-shadow-md">
+                    Experience Unparalleled Beauty & Relaxation
+                </h1>
+                <p class="text-lg sm:text-xl mb-8 drop-shadow-sm">
+                    Your journey to radiant beauty and blissful pampering begins here at Phindy P Beauty Bar.
+                </p>
+                <a href="#book-now" class="inline-block bg-rose-gold text-white text-lg px-8 py-4 rounded-full hover:bg-blush-pink transition duration-300 shadow-xl transform hover:scale-105">
+                    Book Your Transformation Today
+                </a>
+            </div>
+        </section>
+
+        <!-- About Us Section (Brief Introduction) -->
+        <section id="about" class="py-16 md:py-24 bg-white container rounded-lg-custom mt-8 shadow-md">
+            <div class="max-w-4xl mx-auto text-center px-4">
+                <h2 class="text-3xl sm:text-4xl font-bold text-rose-gold mb-6">Welcome to Phindy P Beauty Bar</h2>
+                <p class="text-lg text-gray-700 leading-relaxed mb-8">
+                    At Phindy P Beauty Bar, we believe in enhancing your natural beauty and providing a serene escape from the everyday hustle. Our expert team is dedicated to delivering personalized services that leave you feeling refreshed, confident, and utterly radiant. From luxurious manicures to rejuvenating facials, discover a world where beauty meets tranquility.
+                </p>
+                <a href="#services" class="text-rose-gold hover:underline font-medium text-lg">Explore Our Services &rarr;</a>
+            </div>
+        </section>
+
+        <!-- Services Preview Section -->
+        <section id="services" class="py-16 md:py-24 bg-blush-pink container rounded-lg-custom mt-8 shadow-md">
+            <div class="max-w-6xl mx-auto px-4">
+                <h2 class="text-3xl sm:text-4xl font-bold text-white text-center mb-12">Our Signature Services</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Service Card 1: Nails - Updated with your specified image -->
+                    <div class="bg-white p-6 rounded-lg-custom shadow-lg text-center transform hover:scale-105 transition duration-300">
+                        <img src="pink-glitter-nail-designs-18-360x480.jpg" alt="Pink Glitter Nail Designs" class="mx-auto mb-4 w-24 h-24 object-cover rounded-full">
+                        <h3 class="text-xl font-semibold text-rose-gold mb-3">Nail Perfection</h3>
+                        <p class="text-gray-600 mb-4">
+                            From classic manicures to intricate nail art, let us pamper your hands and feet.
+                        </p>
+                        <a href="#book-now" class="text-blush-pink hover:underline font-medium">Learn More</a>
+                    </div>
+                    <!-- Service Card 2: Skincare -->
+                    <div class="bg-white p-6 rounded-lg-custom shadow-lg text-center transform hover:scale-105 transition duration-300">
+                        <img src="https://placehold.co/100x100/B76E79/FFF?text=✨" alt="Skincare Services Icon" class="mx-auto mb-4 w-24 h-24 object-contain rounded-full">
+                        <h3 class="text-xl font-semibold text-rose-gold mb-3">Glowing Skincare</h3>
+                        <p class="text-gray-600 mb-4">
+                            Rejuvenate your skin with our tailored facials and advanced treatments.
+                        </p>
+                        <a href="#book-now" class="text-blush-pink hover:underline font-medium">Learn More</a>
+                    </div>
+                    <!-- Service Card 3: Hair Styling -->
+                    <div class="bg-white p-6 rounded-lg-custom shadow-lg text-center transform hover:scale-105 transition duration-300">
+                        <img src="https://placehold.co/100x100/B76E79/FFF?text=💇‍♀️" alt="Hair Services Icon" class="mx-auto mb-4 w-24 h-24 object-contain rounded-full">
+                        <h3 class="text-xl font-semibold text-rose-gold mb-3">Hair Transformations</h3>
+                        <p class="text-gray-600 mb-4">
+                            Expert cuts, vibrant colors, and stunning styles for every occasion.
+                        </p>
+                        <a href="#book-now" class="text-blush-pink hover:underline font-medium">Learn More</a>
+                    </div>
+                </div>
+                <div class="text-center mt-12">
+                    <a href="#book-now" class="inline-block bg-rose-gold text-white text-lg px-8 py-4 rounded-full hover:bg-white hover:text-rose-gold transition duration-300 shadow-xl transform hover:scale-105">
+                        View All Services
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section id="testimonials" class="py-16 md:py-24 bg-white container rounded-lg-custom mt-8 shadow-md">
+            <div class="max-w-4xl mx-auto px-4 text-center">
+                <h2 class="text-3xl sm:text-4xl font-bold text-rose-gold mb-12">What Our Clients Say</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Testimonial 1 -->
+                    <div class="bg-light-grey p-6 rounded-lg-custom shadow-inner">
+                        <p class="italic text-gray-700 mb-4">
+                            "Phindy P Beauty Bar is my go-to for everything beauty! The staff are incredibly talented and make you feel so comfortable. My nails have never looked better!"
+                        </p>
+                        <p class="font-semibold text-rose-gold">- Sarah J.</p>
+                    </div>
+                    <!-- Testimonial 2 -->
+                    <div class="bg-light-grey p-6 rounded-lg-custom shadow-inner">
+                        <p class="italic text-gray-700 mb-4">
+                            "Absolutely loved my facial here. My skin feels amazing and the entire experience was so relaxing. Highly recommend Phindy P!"
+                        </p>
+                        <p class="font-semibold text-rose-gold">- Emily R.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Call to Action / Booking Section -->
+        <section id="book-now" class="bg-rose-gold py-20 text-white text-center rounded-lg-custom mt-8 shadow-xl">
+            <div class="container max-w-3xl mx-auto px-4">
+                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">Ready for Your Beauty Transformation?</h2>
+                <p class="text-lg sm:text-xl mb-8 opacity-90">
+                    Book your appointment today and let us help you glow from within!
+                </p>
+                <!-- This button would ideally link to an external booking system or a dedicated booking page -->
+                <a href="#" class="inline-block bg-white text-rose-gold text-xl px-10 py-5 rounded-full hover:bg-blush-pink hover:text-white transition duration-300 shadow-2xl transform hover:scale-105">
+                    Schedule Now
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer Section -->
+    <footer id="contact" class="bg-gray-800 text-white py-12 mt-8 rounded-t-lg-custom">
+        <div class="container grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left px-4">
+            <!-- Contact Info -->
+            <div>
+                <h3 class="text-xl font-bold text-blush-pink mb-4">Contact Us</h3>
+                <p class="mb-2">123 Beauty Blvd, Glamour City, SA 12345</p>
+                <p class="mb-2">Phone: <a href="tel:+27123456789" class="hover:underline">+27 12 345 6789</a></p>
+                <p class="mb-2">Email: <a href="mailto:info@phindyp.com" class="hover:underline">info@phindyp.com</a></p>
+                <p>Hours: Mon-Sat: 9AM - 6PM</p>
+            </div>
+            <!-- Quick Links -->
+            <div>
+                <h3 class="text-xl font-bold text-blush-pink mb-4">Quick Links</h3>
+                <ul>
+                    <li class="mb-2"><a href="#services" class="hover:underline">Services</a></li>
+                    <li class="mb-2"><a href="#about" class="hover:underline">About Us</a></li>
+                    <li class="mb-2"><a href="#gallery" class="hover:underline">Gallery</a></li>
+                    <li class="mb-2"><a href="#book-now" class="hover:underline">Book Online</a></li>
+                </ul>
+            </div>
+            <!-- Social Media -->
+            <div>
+                <h3 class="text-xl font-bold text-blush-pink mb-4">Follow Us</h3>
+                <div class="flex justify-center md:justify-start space-x-4">
+                    <!-- Placeholder for social media icons -->
+                    <a href="https://www.tiktok.com/@yourbeautytiktok" target="_blank" class="text-white hover:text-blush-pink transition duration-300">
+                        <svg fill="currentColor" viewBox="0 0 24 24" class="w-8 h-8" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M12.315 2.504c1.676 0 3.14.794 3.994 2.146l.096.177.296.54c.484.887.688 1.95.688 3.012v.114a8.214 8.214 0 01-.073.748l-.05.183c-.027.098-.078.225-.13.364-.092.247-.216.51-.383.79-.323.53-.733 1.05-1.194 1.554a9.968 9.968 0 01-1.636 1.638 9.968 9.968 0 01-1.638 1.636c-.504.46-1.024.87-1.554 1.194-.28.167-.543.291-.79.383-.139.052-.266.103-.364.131l-.183.05-.748.073v.114c-1.062 0-2.125-.204-3.012-.688l-.54-.296-.177-.096-2.146-.3994c-1.352-.854-2.146-2.318-2.146-3.994 0-1.676.794-3.14 2.146-3.994l.096-.177.296-.54c.484-.887.688-1.95.688-3.012v-.114c0-.748-.073-1.496-.204-2.234l-.226-.827-.123-.418-.08-.28-.052-.17-.024-.078c.036-.145.093-.284.17-.417l.42-.519c.144-.177.307-.33.486-.459.202-.146.425-.262.66-.35a3.33 3.33 0 01.442-.142l.53-.13c.12-.029.24-.055.36-.08.118-.026.236-.05.352-.07a.97.97 0 01.116-.017H12.315Z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                    <a href="https://www.instagram.com/yourbeautyinstagram" target="_blank" class="text-white hover:text-blush-pink transition duration-300">
+                        <svg fill="currentColor" viewBox="0 0 24 24" class="w-8 h-8" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M12 0C8.78 0 8.35 0 7.03 0C5.7 0 4.67.06 3.75.25C2.81.44 2.12.75 1.52 1.34C.92 1.94.61 2.63.42 3.55C.23 4.47.17 5.5.17 6.83C.17 8.16.17 8.59.17 12C.17 15.34.17 15.77.17 17.1C.17 18.43.23 19.46.42 20.38C.61 21.3.92 21.99 1.52 22.59C2.12 23.19 2.81 23.5 3.75 23.69C4.67 23.88 5.7 23.94 7.03 23.94C8.35 23.94 8.78 23.94 12 23.94C15.34 23.94 15.77 23.94 17.1 23.94C18.43 23.94 19.46 23.88 20.38 23.69C21.3 23.5 21.99 23.19 22.59 22.59C23.19 21.99 23.5 21.3 23.69 20.38C23.88 19.46 23.94 18.43 23.94 17.1C23.94 15.77 23.94 15.34 23.94 12C23.94 8.78 23.94 8.35 23.94 7.03C23.94 5.7.17 4.67.25 3.75C.44 2.81.75 2.12 1.34 1.52C1.94.92 2.63.61 3.55.42C4.47.23 5.5.17 6.83.17C8.16.17 8.59.17 12 .17ZM12 4.1C15.25 4.1 17.9 6.75 17.9 10C17.9 13.25 15.25 15.9 12 15.9C8.75 15.9 6.1 13.25 6.1 10C6.1 6.75 8.75 4.1 12 4.1ZM12 6.5C9.92 6.5 8.25 8.17 8.25 10.25C8.25 12.33 9.92 14 12 14C14.08 14 15.75 12.33 15.75 10.25C15.75 8.17 14.08 6.5 12 6.5ZM19.2 4.5C18.66 4.5 18.23 4.93 18.23 5.47C18.23 6.01 18.66 6.44 19.2 6.44C19.74 6.44 20.17 6.01 20.17 5.47C20.17 4.93 19.74 4.5 19.2 4.5Z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                    <a href="https://www.facebook.com/yourbeautyfacebook" target="_blank" class="text-white hover:text-blush-pink transition duration-300">
+                        <svg fill="currentColor" viewBox="0 0 24 24" class="w-8 h-8" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M19.5 0h-15C2.016 0 0 2.016 0 4.5v15C0 21.984 2.016 24 4.5 24h7.5V14.625h-3v-3h3V9.375c0-3.15 1.89-4.89 4.74-4.89h2.36v3h-1.5c-1.395 0-1.65 1.045-1.65 1.705v2.295h3.3l-.45 3h-2.85V24H19.5c2.484 0 4.5-2.016 4.5-4.5v-15C24 2.016 21.984 0 19.5 0Z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-8 text-gray-500">
+            <p>&copy; 2025 Phindy P Beauty Bar. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript for Mobile Menu -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const closeMobileMenuButton = document.getElementById('close-mobile-menu');
+
+            if (mobileMenuButton && mobileMenu && closeMobileMenuButton) {
+                mobileMenuButton.addEventListener('click', () => {
+                    mobileMenu.classList.remove('hidden');
+                });
+
+                closeMobileMenuButton.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                });
+
+                // Close mobile menu when a link is clicked
+                mobileMenu.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', () => {
+                        mobileMenu.classList.add('hidden');
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,2183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Payment Tracker</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons (e.g., download icon for CSV export) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Firebase SDKs - Loaded globally (NOT as modules) to improve local file system compatibility -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+    <style>
+        /* Base styles for Inter font, background, and text color */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5; /* Lighter background for a premium feel */
+            color: #374151; /* Dark gray text */
+        }
+        /* Main container for consistent layout, with a subtle gradient */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: linear-gradient(135deg, #f9fbfd 0%, #eef1f5 100%); /* Subtle gradient background */
+            border-radius: 1rem; /* More rounded corners for the main container */
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.04); /* Deeper shadow */
+        }
+        /* Card styling for sections and components, with hover effects */
+        .card {
+            background-color: #ffffff; /* White background */
+            border-radius: 0.75rem; /* Rounded corners */
+            box-shadow: 0 4px 10px -2px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.05); /* Enhanced shadow */
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; /* Smooth transition for hover */
+        }
+        .card:hover {
+            transform: translateY(-3px); /* Subtle lift on hover */
+            box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.15), 0 4px 8px -4px rgba(0, 0, 0, 0.08); /* More pronounced shadow on hover */
+        }
+        /* Styling for input fields and select dropdowns */
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        input[type="password"],
+        select {
+            border: 1px solid #d1d5db; /* Light gray border */
+            border-radius: 0.5rem; /* Slightly more rounded corners */
+            padding: 0.65rem 1rem; /* Increased padding */
+            font-size: 1rem;
+            width: 100%;
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out; /* Smooth transition for focus */
+        }
+        /* Focus styles for inputs */
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="date"]:focus,
+        input[type="password"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #8b5cf6; /* A more vibrant purple on focus */
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.3); /* Soft purple shadow */
+        }
+        /* Base button styling */
+        button {
+            padding: 0.75rem 1.5rem; /* Increased padding */
+            border-radius: 0.65rem; /* More rounded corners */
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease-in-out; /* All properties transition for smoothness */
+            letter-spacing: 0.025em; /* Slight letter spacing */
+        }
+        /* Primary button style with gradient and hover effects */
+        .btn-primary {
+            background-image: linear-gradient(to right, #8b5cf6 0%, #6366f1 100%); /* Purple to Indigo gradient */
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3); /* Shadow matching gradient */
+        }
+        .btn-primary:hover {
+            background-position: right center; /* Shifts gradient on hover */
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4); /* Larger shadow on hover */
+            transform: translateY(-2px); /* Slight lift */
+        }
+        /* Secondary button style with hover effects */
+        .btn-secondary {
+            background-color: #e5e7eb;
+            color: #374151;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        .btn-secondary:hover {
+            background-color: #d1d5db;
+            color: #1f2937;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+        }
+        /* Danger button style */
+        .btn-danger {
+            background-color: #ef4444;
+            color: #ffffff;
+            box-shadow: 0 2px 5px rgba(239, 68, 68, 0.2);
+        }
+        .btn-danger:hover {
+            background-color: #dc2626;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(220, 38, 38, 0.3);
+        }
+        /* Info button style */
+        .btn-info {
+            background-color: #3b82f6; /* Blue background */
+            color: #ffffff;
+            box-shadow: 0 2px 5px rgba(59, 130, 246, 0.2);
+        }
+        .btn-info:hover {
+            background-color: #2563eb;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(37, 99, 235, 0.3);
+        }
+        /* Modal overlay styling with fade-in animation */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6); /* Darker overlay */
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease-out forwards; /* Fade in animation */
+        }
+        /* Modal content box with slide-up and fade-in */
+        .modal-content {
+            background-color: #fefefe;
+            padding: 2rem; /* Increased padding */
+            border-radius: 1rem; /* More rounded */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); /* Stronger shadow */
+            width: 90%;
+            max-width: 550px; /* Slightly larger max-width */
+            position: relative;
+            animation: slideUpFadeIn 0.3s ease-out forwards; /* Slide up and fade in animation */
+        }
+        /* Keyframe animations for modals */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUpFadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Close button for modals */
+        .close-button {
+            color: #9ca3af; /* Lighter grey */
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            font-size: 2rem; /* Larger icon */
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s ease-in-out;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: black; /* Darker on hover */
+        }
+        /* Table styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            border-radius: 0.75rem; /* Rounded table corners */
+            overflow: hidden; /* Ensures rounded corners apply to content */
+        }
+        th, td {
+            border: 1px solid #e5e7eb;
+            padding: 1rem; /* Increased padding */
+            text-align: left;
+        }
+        th {
+            background-color: #f9fafb;
+            font-weight: 600;
+            color: #4b5563;
+        }
+        /* Zebra striping for table rows with subtle hover */
+        tr:nth-child(even) {
+            background-color: #fefefe; /* White for even rows */
+        }
+        tr:nth-child(odd) {
+             background-color: #f9fafb; /* Lightest gray for odd rows */
+        }
+        tr:hover {
+            background-color: #eff6ff; /* Very light blue on hover */
+            transition: background-color 0.15s ease-in-out;
+        }
+        /* Message box for alerts/notifications */
+        .message-box {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            background-color: #4CAF50;
+            color: white;
+            padding: 18px 25px; /* More padding */
+            border-radius: 10px; /* More rounded */
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25); /* Stronger shadow */
+            z-index: 1001;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out; /* Smooth transition */
+            transform: translateX(100%); /* Start off-screen right */
+        }
+        .message-box.show {
+            transform: translateX(0); /* Slide in */
+            opacity: 1;
+        }
+        .message-box.error {
+            background-color: #f44336;
+        }
+        /* Utility class to hide elements */
+        .hidden {
+            display: none;
+        }
+
+        /* Responsive adjustments for tables and forms */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+                margin: 0.5rem; /* Smaller margins on mobile */
+            }
+            .grid-cols-1.md:grid-cols-2 {
+                grid-template-columns: 1fr; /* Stack columns on smaller screens */
+            }
+            table, thead, tbody, th, td, tr {
+                display: block; /* Make table responsive */
+            }
+            thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+            tr { border: 1px solid #eee; margin-bottom: 0.75rem; border-radius: 0.5rem; overflow: hidden; } /* Card-like rows */
+            td {
+                border: none;
+                border-bottom: 1px solid #eee;
+                position: relative;
+                padding-left: 50%;
+                text-align: right;
+                font-size: 0.95rem; /* Slightly smaller font */
+            }
+            td:last-child {
+                border-bottom: 0; /* No border for the last cell */
+            }
+            td:before {
+                position: absolute;
+                top: 0; /* Align to top of padding */
+                left: 0; /* Align to left of padding */
+                width: 48%; /* Adjust width for labels */
+                padding: 1rem 0.5rem 1rem 1rem; /* Padding for label */
+                white-space: nowrap;
+                text-align: left;
+                font-weight: 700; /* Bolder label */
+                content: attr(data-label);
+                background-color: #f9fafb; /* Light background for label */
+                height: 100%; /* Make background fill height */
+                display: flex;
+                align-items: center;
+            }
+            .modal-content {
+                padding: 1.5rem;
+            }
+            .modal-content h3 {
+                font-size: 1.5rem;
+            }
+            .close-button {
+                font-size: 1.8rem;
+                top: 0.8rem;
+                right: 1rem;
+            }
+            nav {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            nav h1 {
+                margin-bottom: 0.5rem;
+                font-size: 2rem;
+            }
+            nav .flex-space-x-4 {
+                display: flex;
+                width: 100%;
+                justify-content: space-around;
+            }
+            nav button {
+                flex: 1;
+                margin: 0.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation Bar -->
+        <nav class="flex justify-between items-center py-4 px-6 bg-white rounded-lg shadow-md mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Family Payment Tracker</h1>
+            <div class="flex space-x-4">
+                <button id="admin-nav-btn" class="btn-primary">Admin Dashboard</button>
+                <button id="family-nav-btn" class="btn-primary">Family View</button>
+            </div>
+        </nav>
+
+        <!-- Loading Spinner - Shown while Firebase initializes -->
+        <div id="loading-spinner" class="hidden flex flex-col justify-center items-center h-48">
+            <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-purple-500 border-solid"></div>
+            <p class="ml-4 mt-4 text-lg text-gray-600">Loading Application...</p>
+        </div>
+
+        <!-- Admin Dashboard Section -->
+        <section id="admin-section" class="card hidden">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-700">Admin Dashboard</h2>
+            <!-- Admin Key Input Section -->
+            <div id="admin-key-section" class="flex flex-col items-center justify-center p-6 bg-purple-50 rounded-lg shadow-inner">
+                <p class="text-lg font-medium mb-4 text-purple-800">Enter Admin Key to Access Dashboard:</p>
+                <div class="flex flex-col sm:flex-row gap-4 w-full max-w-sm">
+                    <input type="password" id="admin-key-input" placeholder="Enter admin key" class="flex-grow">
+                    <button id="submit-admin-key-btn" class="btn-primary">Submit Key</button>
+                </div>
+                <p id="admin-key-error" class="text-red-600 text-sm mt-2 hidden font-semibold">Incorrect admin key. Please try again.</p>
+            </div>
+
+            <!-- Admin Dashboard Content (hidden by default, shown after correct key) -->
+            <div id="admin-dashboard-content" class="hidden">
+                <!-- Displays the authenticated user's ID for reference -->
+                <p class="text-gray-600 mb-4">Welcome, Admin. Your User ID: <span id="admin-user-id" class="font-mono text-sm bg-gray-100 px-2 py-1 rounded"></span></p>
+
+                <!-- Admin Dashboard Summary Section -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+                    <div class="card p-4 text-center">
+                        <h3 class="text-lg font-semibold text-gray-600">Total Family Members</h3>
+                        <p class="text-3xl font-bold text-indigo-600" id="total-members">0</p>
+                    </div>
+                    <div class="card p-4 text-center">
+                        <h3 class="text-lg font-semibold text-gray-600">Total Owing (Family)</h3>
+                        <p class="text-3xl font-bold text-red-600" id="admin-total-owing">R0.00</p>
+                    </div>
+                    <div class="card p-4 text-center">
+                        <h3 class="text-lg font-semibold text-gray-600">Total Amount (Contributions)</h3>
+                        <p class="text-3xl font-bold text-green-600" id="admin-total-amount">R0.00</p>
+                    </div>
+                </div>
+
+                <!-- Admin Actions and Reports -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <!-- Family Member Management Card -->
+                    <div class="card p-4">
+                        <h3 class="text-xl font-semibold mb-3 text-gray-700">Family Members Management</h3>
+                        <button id="add-family-member-btn" class="btn-primary mb-4">Add New Family Member</button>
+                        <button id="export-data-btn" class="btn-info mb-4 ml-2"><i class="fas fa-download mr-2"></i>Export Data (CSV)</button>
+                        <button id="reset-data-btn" class="btn-danger mb-4 ml-2"><i class="fas fa-trash-alt mr-2"></i>Reset All Data</button>
+
+                        <h4 class="text-lg font-semibold mb-2 text-gray-700 mt-4">Current Balances:</h4>
+                        <div id="family-members-list" class="space-y-2">
+                            <p class="text-gray-500">Loading family members...</p>
+                        </div>
+                    </div>
+
+                    <!-- Payment Management Card -->
+                    <div class="card p-4">
+                        <h3 class="text-xl font-semibold mb-3 text-gray-700">Payment History & Actions</h3>
+                        <div class="mb-4">
+                            <label for="select-family-member-for-payments" class="block text-gray-700 text-sm font-bold mb-2">Select Family Member:</label>
+                            <!-- Dropdown to select a family member to view/add payments for -->
+                            <select id="select-family-member-for-payments" class="block w-full">
+                                <option value="">-- Select a Family Member --</option>
+                            </select>
+                        </div>
+                        <!-- Button to add new payment, disabled until a family member is selected -->
+                        <button id="add-payment-btn" class="btn-primary mb-4" disabled>Add New Payment</button>
+
+                        <h4 class="text-lg font-semibold mb-2 text-gray-700 mt-4">Recent Payments:</h4>
+                        <div id="payments-table-container">
+                            <table id="payments-table" class="min-w-full bg-white hidden">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Amount Paid</th>
+                                        <th>Description</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="payments-table-body">
+                                    <!-- Payment history for the selected family member will be loaded here -->
+                                </tbody>
+                            </table>
+                            <p id="no-payments-message" class="text-gray-500 hidden">No payment history for this family member.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Admin Features -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="card p-4">
+                        <h3 class="text-xl font-semibold mb-3 text-gray-700">Payment Status Overview (Current Month)</h3>
+                        <p class="text-gray-600"><span class="font-semibold" id="current-month-expected">0</span> payments expected (R100 each).</p>
+                        <p class="text-600"><span class="font-semibold text-green-600" id="current-month-paid">0</span> payments received.</p>
+                        <p class="text-gray-600"><span class="font-semibold text-red-600" id="current-month-missed">0</span> payments missed.</p>
+                    </div>
+                    <div class="card p-4">
+                        <h3 class="text-xl font-semibold mb-3 text-gray-700">Overdue Payments Summary</h3>
+                        <p class="text-gray-600"><span class="font-semibold" id="overdue-members-count">0</span> members with overdue payments.</p>
+                        <ul id="overdue-members-list" class="list-disc list-inside text-red-700 text-sm">
+                            <!-- Overdue members will be listed here -->
+                        </ul>
+                        <p class="text-gray-600 mt-2"><span class="font-semibold text-blue-600" id="credit-members-count">0</span> members with credit balance.</p>
+                         <ul id="credit-members-list" class="list-disc list-inside text-blue-700 text-sm">
+                            <!-- Members with credit will be listed here -->
+                        </ul>
+                    </div>
+                </div>
+                <!-- More Features (can be expanded) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="card p-4">
+                        <h3 class="text-xl font-semibold mb-3 text-gray-700">Payment Trends (Placeholder)</h3>
+                        <p class="text-gray-500">A chart showing payment trends over time would go here.</p>
+                        <p class="text-sm text-gray-400 mt-2">*(Requires a charting library for visualization, e.g., Chart.js)*</p>
+                    </div>
+                     <div class="card p-4">
+                        <h3 class="text-xl font-semibold mb-3 text-gray-700">Payment Reminders (Placeholder)</h3>
+                        <p class="text-gray-500">Functionality to send automated payment reminders.</p>
+                        <p class="text-sm text-gray-400 mt-2">*(Requires backend service or API for sending emails/messages)*</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Family View Section -->
+        <section id="family-section" class="card hidden">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-700">Family Member View</h2>
+            <div class="mb-4">
+                <label for="select-my-family-member" class="block text-gray-700 text-sm font-bold mb-2">I am:</label>
+                <!-- Dropdown for the family member to select themselves -->
+                <select id="select-my-family-member" class="block w-full">
+                    <option value="">-- Select Your Family Member --</option>
+                </select>
+            </div>
+
+            <!-- Content for family view, hidden until a family member is selected -->
+            <div id="family-view-content" class="hidden">
+                <!-- Summary cards for total paid, total owing, etc. -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+                    <div class="card p-4 text-center">
+                        <h3 class="text-lg font-semibold text-gray-600">Current Balance</h3>
+                        <p class="text-3xl font-bold" id="family-current-balance">R0.00</p>
+                        <p class="text-sm text-gray-500" id="balance-status"></p>
+                    </div>
+                    <div class="card p-4 text-center">
+                        <h3 class="text-lg font-semibold text-gray-600">Total Paid</h3>
+                        <p class="text-3xl font-bold text-green-600" id="family-total-paid-summary">R0.00</p>
+                    </div>
+                    <div class="card p-4 text-center">
+                        <h3 class="text-lg font-semibold text-gray-600">Total Amount (Contributions)</h3>
+                        <p class="text-3xl font-bold text-blue-600" id="family-total-credit-summary">R0.00</p>
+                    </div>
+                </div>
+
+                <!-- Filter options for payment history -->
+                <div class="mb-4 flex flex-wrap gap-2 items-center">
+                    <label class="block text-gray-700 text-sm font-bold mr-2">Filter by:</label>
+                    <button id="filter-all" class="btn-secondary">All Time</button>
+                    <button id="filter-2025" class="btn-secondary">2025</button>
+                    <button id="filter-last-3-months" class="btn-secondary">Last 3 Months</button>
+                    <select id="filter-by-year" class="px-3 py-1 border border-gray-300 rounded-md">
+                        <option value="">Select Year</option>
+                    </select>
+                </div>
+
+                <!-- Table for family member's payment history -->
+                <div id="family-payments-table-container">
+                    <table id="family-payments-table" class="min-w-full bg-white">
+                        <thead>
+                            <tr>
+                                <th data-label="Date">Date</th>
+                                <th data-label="Amount Paid">Amount Paid</th>
+                                <th data-label="Type">Type</th>
+                                <th data-label="Description">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody id="family-payments-table-body">
+                            <!-- Family member's filtered payment history will be loaded here -->
+                        </tbody>
+                    </table>
+                    <p id="no-family-payments-message" class="text-gray-500 hidden">No payment history found for the selected filters.</p>
+                </div>
+            </div>
+            <!-- Prompt to select family member -->
+            <p id="select-family-member-prompt" class="text-gray-500 text-center mt-8">Please select your family member profile above to view your payment history.</p>
+        </section>
+
+        <!-- Add/Edit Family Member Modal -->
+        <div id="family-member-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>
+                <h3 id="family-member-modal-title" class="text-xl font-semibold mb-4 text-gray-700">Add New Family Member</h3>
+                <form id="family-member-form">
+                    <input type="hidden" id="family-member-id">
+                    <div class="mb-4">
+                        <label for="family-member-name" class="block text-gray-700 text-sm font-bold mb-2">Name:</label>
+                        <input type="text" id="family-member-name" placeholder="Enter family member's name" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="family-member-email" class="block text-gray-700 text-sm font-bold mb-2">Email (Optional):</label>
+                        <input type="email" id="family-member-email" placeholder="Enter email">
+                    </div>
+                    <div class="flex justify-end space-x-2">
+                        <button type="button" id="cancel-family-member-btn" class="btn-secondary">Cancel</button>
+                        <button type="submit" class="btn-primary">Save Family Member</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Add/Edit Payment Modal -->
+        <div id="payment-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>
+                <h3 id="payment-modal-title" class="text-xl font-semibold mb-4 text-gray-700">Add New Payment</h3>
+                <form id="payment-form">
+                    <input type="hidden" id="payment-id">
+                    <input type="hidden" id="payment-family-member-id">
+                    <div class="mb-4">
+                        <label for="payment-date" class="block text-gray-700 text-sm font-bold mb-2">Date:</label>
+                        <input type="date" id="payment-date" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="payment-type-select" class="block text-gray-700 text-sm font-bold mb-2">Payment Type:</label>
+                        <select id="payment-type-select" class="block w-full">
+                            <option value="monthly_contribution">Monthly Contribution (R100)</option>
+                            <option value="additional_payment">Additional Payment (towards balance)</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label for="amount-paid" class="block text-gray-700 text-sm font-bold mb-2">Amount Paid:</label>
+                        <input type="number" id="amount-paid" min="0" step="0.01" placeholder="e.g., 100.00" required>
+                    </div>
+                    <div class="mb-4" id="payment-result-summary">
+                        <p class="text-sm text-gray-600">After this payment:</p>
+                        <p class="text-base font-semibold text-gray-600" id="result-status-display"></p>
+                        <p class="text-base font-semibold text-red-600" id="result-owing-display"></p>
+                        <p class="text-base font-semibold text-green-600" id="result-credit-display"></p>
+                    </div>
+                    <div class="mb-4">
+                        <label for="payment-description" class="block text-gray-700 text-sm font-bold mb-2">Description:</label>
+                        <input type="text" id="payment-description" placeholder="e.g., Monthly contribution">
+                    </div>
+                    <div class="flex justify-end space-x-2">
+                        <button type="button" id="cancel-payment-btn" class="btn-secondary">Cancel</button>
+                        <button type="submit" class="btn-primary">Save Payment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Message Box for displaying success/error messages -->
+        <div id="message-box" class="message-box"></div>
+
+        <!-- Troubleshoot Button -->
+        <button id="troubleshoot-button" class="fixed bottom-4 left-4 z-[1000] p-3 bg-blue-500 text-white rounded-full shadow-lg">JS Test</button>
+    </div>
+
+    <script>
+        console.log('Script loaded: Starting Family Payment Tracker application.');
+
+        // Firebase SDKs are now loaded via global <script> tags in the <head>
+        // No 'import' statements needed here. Global 'firebase' object should be available.
+
+        console.log('--- Firebase SDK Global Checks ---');
+        console.log('typeof firebase.initializeApp:', typeof firebase?.initializeApp);
+        console.log('typeof firebase.auth:', typeof firebase?.auth);
+        console.log('typeof firebase.firestore:', typeof firebase?.firestore);
+        console.log('------------------------------------------------');
+
+        // IMPORTANT: For this application to work with a live, shared database (multi-user),
+        // you MUST replace these placeholder Firebase configuration values with your
+        // actual project's configuration. You can find these in your Firebase console
+        // under Project settings -> Your apps -> Firebase SDK snippet -> Config.
+        // If these are not provided, the application will default to using Local Storage.
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'; // Use Canvas provided ID or a default
+        const firebaseConfig = {
+            apiKey: "AIzaSyBn28KNz0kVcaxzkYmUYAcS_AZs_wq6g-k",
+            authDomain: "familypaymentsapp.firebaseapp.com",
+            projectId: "familypaymentsapp",
+            storageBucket: "familypaymentsapp.firebasestorage.app",
+            messagingSenderId: "618356010513",
+            appId: "1:618356010513:web:8ab0b8ec42eba587968bb0",
+            measurementId: "G-0901027823"
+        };
+
+        // This token is provided by the Canvas environment. When running locally (outside Canvas), it will be null,
+        // which will enable signInAnonymously() as a fallback.
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // Admin key for UI access control
+        const ADMIN_KEY = "1234898";
+        let isAdminKeyEntered = false; // Tracks if the admin key has been successfully entered
+
+        // Firebase instances - will be null if Firebase initialization fails
+        let app = null;
+        let db = null;
+        let auth = null;
+        let adminUserId = null; // Stores the authenticated user's ID (admin in this case)
+
+        let isFirebaseActive = false; // Flag to check if Firebase is successfully connected
+
+        // Data arrays to hold fetched information
+        let familyMembers = [];
+        let payments = [];
+
+        // State variables to track currently selected items for display/editing
+        let currentSelectedFamilyMemberId = null; // For the admin dashboard's payment section
+        let currentFamilyViewMemberId = null; // For the family member view
+
+        // Global constant for monthly expected payment
+        const MONTHLY_EXPECTED_AMOUNT = 100; // R100 as specified by user
+
+        // DOM Element References (declared here, assigned in window.onload)
+        let adminSection;
+        let familySection;
+        let adminNavBtn;
+        let familyNavBtn;
+        let loadingSpinner;
+        let adminUserIdSpan;
+        let messageBox; // Global reference for message box
+        let adminKeySection;
+        let adminKeyInput;
+        let submitAdminKeyBtn;
+        let adminKeyError;
+        let adminDashboardContent;
+        let totalMembersSpan;
+        let adminTotalOwingSpan;
+        let adminTotalAmountSpan; // Renamed from adminTotalCreditSpan
+        let exportDataBtn;
+        let resetDataBtn;
+        let currentMonthExpectedSpan;
+        let currentMonthPaidSpan;
+        let currentMonthMissedSpan;
+        let overdueMembersCountSpan;
+        let overdueMembersList;
+        let creditMembersCountSpan; // Still used for display, but logic changed
+        let creditMembersList;
+        let familyMemberModal;
+        let familyMemberModalTitle;
+        let familyMemberForm;
+        let familyMemberIdInput;
+        let familyMemberNameInput;
+        let familyMemberEmailInput;
+        let addFamilyMemberBtn; // Button element, not the function
+        let cancelFamilyMemberBtn; // Button element
+        let familyMembersListDiv;
+        let paymentModal;
+        let paymentModalTitle;
+        let paymentForm;
+        let paymentIdInput;
+        let paymentFamilyMemberIdInput;
+        let paymentDateInput;
+        let paymentTypeSelect; // New: payment type dropdown
+        let amountPaidInput;
+        let paymentResultSummary;
+        let resultStatusDisplay; // New: status like 'covered'
+        let resultOwingDisplay;
+        let resultCreditDisplay;
+        let paymentDescriptionInput;
+        let addPaymentButton; // Element for the "Add New Payment" button
+        let cancelPaymentBtnElement; // Button element
+        let selectFamilyMemberForPayments;
+        let paymentsTableContainer;
+        let paymentsTableBody;
+        let paymentsTable;
+        let noPaymentsMessage;
+        let selectMyFamilyMember;
+        let familyViewContent;
+        let selectFamilyMemberPrompt;
+        let familyCurrentBalanceSpan;
+        let balanceStatusSpan;
+        let familyTotalPaidSummarySpan;
+        let familyTotalCreditSummarySpan; // Remains as "Total Credit (From Payments)" in family view
+        let filterAllBtn;
+        let filter2025Btn;
+        let filterLast3MonthsBtn;
+        let filterByYearSelect;
+        let familyPaymentsTableBody;
+        let familyPaymentsTable;
+        let noFamilyPaymentsMessage;
+        let troubleshootButton;
+
+
+        console.log('DOM elements declared. Values will be assigned in window.onload.');
+
+
+        /**
+         * Displays a temporary message box for user feedback (success or error).
+         * @param {string} message - The text message to display.
+         * @param {boolean} [isError=false] - True if the message indicates an error, false for success.
+         */
+        function showMessageBox(message, isError = false) {
+            // Check if messageBox element is available before trying to use it
+            if (!messageBox) {
+                console.error('MessageBox element not found, cannot display message:', message);
+                return;
+            }
+            messageBox.textContent = message;
+            messageBox.className = 'message-box'; // Reset classes
+            if (isError) {
+                messageBox.classList.add('error');
+            }
+            messageBox.classList.add('show'); // Add 'show' class to trigger slide-in animation
+
+            // Automatically hide after 3 seconds
+            setTimeout(() => {
+                messageBox.classList.remove('show'); // Remove 'show' class to trigger slide-out
+                setTimeout(() => {
+                    messageBox.style.display = 'none'; // Hide completely after animation
+                }, 500); // Duration of fade-out/slide-out transition
+            }, 3000); // Display duration
+        }
+
+        /**
+         * Toggles the visibility of main application sections (Admin, Family).
+         * @param {string} sectionId - The ID of the section to display ('admin', 'family', or 'loading').
+         */
+        function showSection(sectionId) {
+            console.log(`Showing section: ${sectionId}`);
+            // Ensure elements are not null before accessing classList
+            if (adminSection) adminSection.classList.add('hidden');
+            if (familySection) familySection.classList.add('hidden');
+            if (loadingSpinner) loadingSpinner.classList.add('hidden');
+
+            if (sectionId === 'admin') {
+                if (adminSection) adminSection.classList.remove('hidden');
+                if (isAdminKeyEntered) {
+                    if (adminKeySection) adminKeySection.classList.add('hidden');
+                    if (adminDashboardContent) adminDashboardContent.classList.remove('hidden');
+                    updateAdminDashboardSummary(); // Update summary when dashboard is shown
+                } else {
+                    if (adminKeySection) adminKeySection.classList.remove('hidden');
+                    if (adminDashboardContent) adminDashboardContent.classList.add('hidden');
+                    if (adminKeyInput) adminKeyInput.value = ''; // Clear previous input
+                    if (adminKeyError) adminKeyError.classList.add('hidden'); // Hide error message
+                }
+            } else if (sectionId === 'family') {
+                if (familySection) familySection.classList.remove('hidden');
+            } else if (sectionId === 'loading') {
+                if (loadingSpinner) loadingSpinner.classList.remove('hidden');
+            }
+        }
+
+        /**
+         * Opens a given modal element.
+         * @param {HTMLElement} modalElement - The modal HTML element to open.
+         */
+        function openModal(modalElement) {
+            modalElement.style.display = 'flex'; // Use flex to center the modal content
+            console.log(`Modal opened: ${modalElement.id}`);
+        }
+
+        /**
+         * Closes a given modal element.
+         * @param {HTMLElement} modalElement - The modal HTML element to close.
+         */
+        function closeModal(modalElement) {
+            modalElement.style.display = 'none';
+            console.log(`Modal closed: ${modalElement.id}`);
+        }
+
+        /**
+         * Accrues monthly payments for a family member based on the current date and their last accrual date.
+         * This function simulates the R100 monthly payment being added to their balance.
+         * @param {object} member - The family member object.
+         * @returns {boolean} True if any accrual occurred, false otherwise.
+         */
+        function accrueMonthlyPayments(member) {
+            let accrued = false;
+            const now = new Date();
+            let lastAccrual = member.lastAccrualDate ? new Date(member.lastAccrualDate) : new Date(member.creationDate || '2024-01-01'); // Default to a safe past date if no creationDate
+            // Reset to the start of the month for comparison
+            lastAccrual.setDate(1);
+            lastAccrual.setHours(0, 0, 0, 0);
+
+            let currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+            // Accrue for each missed month until the current month (inclusive)
+            while (lastAccrual < currentMonth) {
+                // Advance lastAccrual by one month
+                lastAccrual.setMonth(lastAccrual.getMonth() + 1);
+                // Ensure it doesn't spill over to next year if month goes beyond 11
+                if (lastAccrual.getDate() !== 1) { // If it rolled over due to month having fewer days (e.g. Feb 30th -> Mar 2nd)
+                    lastAccrual.setDate(1); // Set to 1st of correct month
+                }
+
+                if (lastAccrual <= currentMonth) { // Only accrue if still within or before current month
+                    member.balance = (member.balance || 0) + MONTHLY_EXPECTED_AMOUNT;
+                    accrued = true;
+                }
+            }
+            if (accrued) {
+                member.lastAccrualDate = currentMonth.toISOString().split('T')[0]; // Update to current month (start of)
+                console.log(`Accrued R${MONTHLY_EXPECTED_AMOUNT} for ${member.name}. New balance: R${member.balance.toFixed(2)}`);
+            }
+            return accrued;
+        }
+
+        /**
+         * Renders the list of family members in the Admin Dashboard.
+         * Populates both the admin's family list and the dropdowns for payment management and family view.
+         * Also triggers monthly accrual for each member.
+         */
+        function renderFamilyMembers() {
+            console.log('Rendering family members.');
+            // First, apply monthly accrual and update balances
+            let membersUpdatedDueToAccrual = false;
+            familyMembers.forEach(member => {
+                if (accrueMonthlyPayments(member)) {
+                    membersUpdatedDueToAccrual = true;
+                }
+            });
+
+            // If running on local storage and balances were updated due to accrual, save them
+            if (!isFirebaseActive && membersUpdatedDueToAccrual) {
+                saveDataToLocalStorage('familyMembers', familyMembers);
+            }
+            // Note: If Firebase is active and members were updated due to accrual,
+            // the `updateFamilyMember` calls within `accrueMonthlyPayments` (triggered by `renderFamilyViewPayments` or `updateAdminDashboardSummary`)
+            // will handle saving to Firestore and `onSnapshot` will re-render.
+
+            // If no family members exist, display a message and reset dropdowns/buttons.
+            if (familyMembers.length === 0) {
+                if(familyMembersListDiv) familyMembersListDiv.innerHTML = '<p class="text-gray-500">No family members added yet.</p>';
+                if(selectFamilyMemberForPayments) selectFamilyMemberForPayments.innerHTML = '<option value="">-- Select a Family Member --</option>';
+                if(selectMyFamilyMember) selectMyFamilyMember.innerHTML = '<option value="">-- Select Your Family Member --</option>';
+                if(addPaymentButton) addPaymentButton.disabled = true; // Use correct variable for the HTML button
+                updateAdminDashboardSummary(); // Update summary even if no members
+                return;
+            }
+
+            if(familyMembersListDiv) familyMembersListDiv.innerHTML = ''; // Clear existing list
+            if(selectFamilyMemberForPayments) selectFamilyMemberForPayments.innerHTML = '<option value="">-- Select a Family Member --</option>';
+            if(selectMyFamilyMember) selectMyFamilyMember.innerHTML = '<option value="">-- Select Your Family Member --</option>';
+
+            // Sort family members alphabetically
+            familyMembers.sort((a, b) => a.name.localeCompare(b.name));
+
+            // Iterate over family members and create UI elements
+            familyMembers.forEach(member => {
+                // Admin List: Display family member name, email, and current balance
+                const memberDiv = document.createElement('div');
+                memberDiv.className = 'flex justify-between items-center bg-gray-50 p-3 rounded-md mb-2 transition-all duration-200 hover:bg-gray-100';
+                const balanceClass = member.balance > 0 ? 'text-red-600' : (member.balance < 0 ? 'text-green-600' : 'text-gray-600');
+                const balanceText = member.balance > 0 ? `Owes R${member.balance.toFixed(2)}` : (member.balance < 0 ? `Credit R${Math.abs(member.balance).toFixed(2)}` : 'Balance: R0.00');
+
+                memberDiv.innerHTML = `
+                    <div>
+                        <p class="font-semibold text-gray-800">${member.name}</p>
+                        <p class="text-sm text-gray-600">${member.email || 'No email provided'}</p>
+                        <p class="text-sm font-bold ${balanceClass}">${balanceText}</p>
+                    </div>
+                    <div class="space-x-2">
+                        <button data-id="${member.id}" class="edit-family-member-btn text-blue-500 hover:text-blue-700 text-sm">Edit</button>
+                        <button data-id="${member.id}" class="delete-family-member-btn text-red-500 hover:text-red-700 text-sm">Delete</button>
+                    </div>
+                `;
+                if(familyMembersListDiv) familyMembersListDiv.appendChild(memberDiv);
+
+                // Populate the dropdown for selecting a family member for payment management (Admin)
+                const optionAdmin = document.createElement('option');
+                optionAdmin.value = member.id;
+                optionAdmin.textContent = member.name;
+                if(selectFamilyMemberForPayments) selectFamilyMemberForPayments.appendChild(optionAdmin);
+
+                // Populate the dropdown for family members to select themselves (Family View)
+                const optionFamily = document.createElement('option');
+                optionFamily.value = member.id;
+                optionFamily.textContent = member.name;
+                if(selectMyFamilyMember) selectMyFamilyMember.appendChild(optionFamily);
+            });
+
+            // After rendering, ensure the correct family member is selected in the admin payment dropdown
+            if (currentSelectedFamilyMemberId && familyMembers.some(m => m.id === currentSelectedFamilyMemberId)) {
+                if(selectFamilyMemberForPayments) selectFamilyMemberForPayments.value = currentSelectedFamilyMemberId;
+                if(addPaymentButton) addPaymentButton.disabled = false; // Use correct variable
+                renderPayments(currentSelectedFamilyMemberId); // Render payments for the selected member
+            } else if (familyMembers.length > 0) {
+                 // If no previously selected member, default to the first one
+                 if(selectFamilyMemberForPayments) selectFamilyMemberForPayments.value = familyMembers[0].id;
+                 currentSelectedFamilyMemberId = familyMembers[0].id;
+                 if(addPaymentButton) addPaymentButton.disabled = false; // Use correct variable
+                 renderPayments(currentSelectedFamilyMemberId); // Render payments for the default selected member
+            } else {
+                if(addPaymentButton) addPaymentButton.disabled = true; // No family members, disable add payment
+            }
+
+             // After rendering, ensure the correct family member is selected in the family view dropdown
+             if (currentFamilyViewMemberId && familyMembers.some(m => m.id === currentFamilyViewMemberId)) {
+                if(selectMyFamilyMember) selectMyFamilyMember.value = currentFamilyViewMemberId;
+                if(familyViewContent) familyViewContent.classList.remove('hidden');
+                if(selectFamilyMemberPrompt) selectFamilyMemberPrompt.classList.add('hidden');
+                // Re-render family view with current filter if a family member is still selected
+                const currentFilterButton = document.querySelector('#family-section button.bg-indigo-600');
+                const currentFilterType = currentFilterButton ? currentFilterButton.id.replace('filter-', '') : 'all';
+                renderFamilyViewPayments(currentFamilyViewMemberId, currentFilterType);
+            } else {
+                if(familyViewContent) familyViewContent.classList.add('hidden');
+                if(selectFamilyMemberPrompt) selectFamilyMemberPrompt.classList.remove('hidden');
+            }
+
+            // Update admin dashboard summary after members and their balances are rendered
+            updateAdminDashboardSummary();
+
+            // Add event listeners dynamically to edit/delete buttons for family members
+            document.querySelectorAll('.edit-family-member-btn').forEach(button => {
+                button.onclick = (e) => editFamilyMember(e.target.dataset.id);
+            });
+            document.querySelectorAll('.delete-family-member-btn').forEach(button => {
+                button.onclick = (e) => deleteFamilyMember(e.target.dataset.id);
+            });
+        }
+
+        /**
+         * Renders the payment history table for a specific family member in the Admin Dashboard.
+         * @param {string} familyMemberId - The ID of the family member whose payments to display.
+         */
+        function renderPayments(familyMemberId) {
+            console.log(`Rendering payments for member: ${familyMemberId}`);
+            if(paymentsTableBody) paymentsTableBody.innerHTML = ''; // Clear existing table rows
+            // Get last 5 payments for this member for recent history
+            const filteredPayments = payments.filter(p => p.familyMemberId === familyMemberId);
+
+            // Sort payments by date in descending order (most recent first), then take the last 5
+            const recentPayments = filteredPayments.sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+
+
+            // If no payments for this member, show message and hide table
+            if (recentPayments.length === 0) {
+                if(paymentsTable) paymentsTable.classList.add('hidden');
+                if(noPaymentsMessage) noPaymentsMessage.classList.remove('hidden');
+                return;
+            }
+
+            if(paymentsTable) paymentsTable.classList.remove('hidden');
+            if(noPaymentsMessage) noPaymentsMessage.classList.add('hidden');
+
+            // Populate table rows with payment data
+            recentPayments.forEach(payment => {
+                const row = paymentsTableBody.insertRow();
+                row.innerHTML = `
+                    <td data-label="Date">${payment.date}</td>
+                    <td data-label="Amount Paid">R${payment.amountPaid.toFixed(2)}</td>
+                    <td data-label="Description">${payment.description || 'N/A'}</td>
+                    <td class="flex space-x-2">
+                        <button data-id="${payment.id}" data-family-member-id="${payment.familyMemberId}" class="edit-payment-btn text-blue-500 hover:text-blue-700 text-sm">Edit</button>
+                        <button data-id="${payment.id}" data-family-member-id="${payment.familyMemberId}" class="delete-payment-btn text-red-500 hover:text-red-700 text-sm">Delete</button>
+                    </td>
+                `;
+            });
+
+            // Add event listeners dynamically to edit/delete payment buttons
+            document.querySelectorAll('.edit-payment-btn').forEach(button => {
+                button.onclick = (e) => editPayment(e.target.dataset.id, e.target.dataset.familyMemberId);
+            });
+            document.querySelectorAll('.delete-payment-btn').forEach(button => {
+                button.onclick = (e) => deletePayment(e.target.dataset.id, e.target.dataset.familyMemberId);
+            });
+        }
+
+        /**
+         * Renders the payment history for the selected family member in the Family View section,
+         * applying the specified filter. Also updates the summary totals.
+         * @param {string} familyMemberId - The ID of the family member to display.
+         * @param {string} filterType - The type of filter to apply ('all', '2025', 'last3months', or a specific year).
+         */
+        function renderFamilyViewPayments(familyMemberId, filterType) {
+            console.log(`Rendering family view payments for member: ${familyMemberId}, filter: ${filterType}`);
+            if(familyPaymentsTableBody) familyPaymentsTableBody.innerHTML = ''; // Clear existing table rows
+            let member = familyMembers.find(m => m.id === familyMemberId);
+            if (!member) return; // Should not happen if dropdown is populated correctly
+
+            // Trigger accrual for the selected member in family view
+            if (accrueMonthlyPayments(member)) { // Accrue regardless of Firebase status
+                if (!isFirebaseActive) {
+                    saveDataToLocalStorage('familyMembers', familyMembers); // Save if local storage
+                } else {
+                    // If Firebase, update the specific member document if their balance changed due to accrual
+                    // This will trigger onSnapshot, which will re-render everything
+                    updateFamilyMember(member.id, member);
+                }
+            }
+
+
+            let filteredPayments = payments.filter(p => p.familyMemberId === familyMemberId);
+
+            // Apply filters based on filterType
+            const now = new Date();
+            const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+
+            if (filterType === '2025') {
+                filteredPayments = filteredPayments.filter(p => new Date(p.date).getFullYear() === 2025);
+            } else if (filterType === 'last3months') {
+                filteredPayments = filteredPayments.filter(p => new Date(p.date) >= threeMonthsAgo);
+            } else if (filterType && filterType !== 'all') { // Handle specific year filter
+                const year = parseInt(filterType);
+                if (!isNaN(year)) {
+                    filteredPayments = filteredPayments.filter(p => new Date(p.date).getFullYear() === year);
+                }
+            }
+
+            // Calculate and display summary totals for the selected family member
+            let totalPaid = 0;
+            let totalContributionsFromPayments = 0; // Corrected variable name
+            filteredPayments.forEach(p => {
+                totalPaid += p.amountPaid;
+                totalContributionsFromPayments += p.amountPaid; // All payments contribute to this total
+            });
+
+            // Display overall current balance for the family member
+            const balanceClass = member.balance > 0 ? 'text-red-600' : (member.balance < 0 ? 'text-green-600' : 'text-gray-600');
+            if(familyCurrentBalanceSpan) familyCurrentBalanceSpan.className = `text-3xl font-bold ${balanceClass}`; // Apply color class
+            if(familyCurrentBalanceSpan) familyCurrentBalanceSpan.textContent = `R${Math.abs(member.balance).toFixed(2)}`;
+            if (member.balance > 0) {
+                if(balanceStatusSpan) balanceStatusSpan.textContent = "You are currently owing.";
+                if(balanceStatusSpan) balanceStatusSpan.className = "text-sm text-red-600";
+            } else if (member.balance < 0) {
+                if(balanceStatusSpan) balanceStatusSpan.textContent = "You have a credit balance.";
+                if(balanceStatusSpan) balanceStatusSpan.className = "text-sm text-green-600";
+            } else {
+                if(balanceStatusSpan) balanceStatusSpan.textContent = "Your balance is clear!";
+                if(balanceStatusSpan) balanceStatusSpan.className = "text-sm text-gray-500";
+            }
+
+            if(familyTotalPaidSummarySpan) familyTotalPaidSummarySpan.textContent = `R${totalPaid.toFixed(2)}`;
+            if(familyTotalCreditSummarySpan) familyTotalCreditSummarySpan.textContent = `R${totalContributionsFromPayments.toFixed(2)}`; // Use corrected variable
+
+
+            // If no payments match the filters, show message and hide table
+            if (filteredPayments.length === 0) {
+                if(familyPaymentsTable) familyPaymentsTable.classList.add('hidden');
+                if(noFamilyPaymentsMessage) noFamilyPaymentsMessage.classList.remove('hidden');
+                return;
+            }
+
+            if(familyPaymentsTable) familyPaymentsTable.classList.remove('hidden');
+            if(noFamilyPaymentsMessage) noFamilyPaymentsMessage.classList.add('hidden');
+
+            // Sort filtered payments by date descending
+            filteredPayments.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            // Populate the family payments table
+            filteredPayments.forEach(payment => {
+                const row = familyPaymentsTableBody.insertRow();
+                // Display payment type explicitly in the table
+                const paymentTypeText = payment.paymentType === 'monthly_contribution' ? 'Monthly' : 'Additional';
+
+                row.innerHTML = `
+                    <td data-label="Date">${payment.date}</td>
+                    <td data-label="Amount Paid">R${payment.amountPaid.toFixed(2)}</td>
+                    <td data-label="Type">${paymentTypeText}</td>
+                    <td data-label="Description">${payment.description || 'N/A'}</td>
+                `;
+            });
+        }
+
+        /**
+         * Populates the year filter dropdown in the family view based on all available payment dates.
+         */
+        function populateYearFilter() {
+            console.log('Populating year filter.');
+            const years = new Set(); // Use a Set to store unique years
+            payments.forEach(p => years.add(new Date(p.date).getFullYear()));
+            const sortedYears = Array.from(years).filter(year => !isNaN(year)).sort((a, b) => b - a); // Filter out NaN, Sort years in descending order
+
+            if(filterByYearSelect) filterByYearSelect.innerHTML = '<option value="">Select Year</option>'; // Default option
+            sortedYears.forEach(year => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                if(filterByYearSelect) filterByYearSelect.appendChild(option);
+            });
+        }
+
+        /**
+         * Updates the summary cards and lists in the Admin Dashboard.
+         */
+        function updateAdminDashboardSummary() {
+            console.log('Updating admin dashboard summary.');
+            if(totalMembersSpan) totalMembersSpan.textContent = familyMembers.length;
+
+            let overallTotalOwing = 0;
+            let overallTotalContributions = 0; // New: total money received
+            let overdueMembers = [];
+            let creditMembers = [];
+            let overallTotalCredit = 0; // Initialize overallTotalCredit for safety, though only used in list
+
+            // Accrue payments for all members to ensure balances are up-to-date before summarizing
+            let membersAccruedAndUpdated = false;
+            familyMembers.forEach(member => {
+                 if (accrueMonthlyPayments(member)) { // This mutates member.balance and member.lastAccrualDate
+                     membersAccruedAndUpdated = true;
+                     // In Firebase mode, if accrual happened, push the update.
+                     // In Local Storage mode, accrual directly updates the in-memory object,
+                     // and the save will happen after the full loop if needed.
+                     if (isFirebaseActive) {
+                         // Only update the member in Firestore if their balance or accrual date changed
+                         // This is a subtle point: to avoid excessive writes, we rely on onSnapshot to trigger re-render
+                         // after this async update completes.
+                         updateFamilyMember(member.id, member); // This is async, onSnapshot will handle UI update
+                     }
+                 }
+
+                if (member.balance > 0) { // Sum only positive balances for "owing"
+                    overallTotalOwing += member.balance;
+                    overdueMembers.push({ name: member.name, balance: member.balance });
+                } else if (member.balance < 0) { // Sum absolute values for "credit"
+                    overallTotalCredit += Math.abs(member.balance);
+                    creditMembers.push({ name: member.name, balance: Math.abs(member.balance) });
+                }
+            });
+
+            // Calculate overall contributions from all payments
+            payments.forEach(payment => {
+                overallTotalContributions += payment.amountPaid;
+            });
+
+
+            // If in local storage mode and any member's balance was updated due to accrual, save the entire list
+            if (!isFirebaseActive && membersAccruedAndUpdated) {
+                saveDataToLocalStorage('familyMembers', familyMembers);
+            }
+
+
+            if(adminTotalOwingSpan) adminTotalOwingSpan.textContent = `R${overallTotalOwing.toFixed(2)}`;
+            if(adminTotalAmountSpan) adminTotalAmountSpan.textContent = `R${overallTotalContributions.toFixed(2)}`; // Use the new total contributions
+
+            // Update overdue and credit members lists
+            if(overdueMembersCountSpan) overdueMembersCountSpan.textContent = overdueMembers.length;
+            if(overdueMembersList) overdueMembersList.innerHTML = '';
+            overdueMembers.sort((a,b) => b.balance - a.balance).forEach(m => { // Sort by highest owing
+                const li = document.createElement('li');
+                li.textContent = `${m.name}: R${m.balance.toFixed(2)}`;
+                if(overdueMembersList) overdueMembersList.appendChild(li);
+            });
+
+            creditMembersCountSpan.textContent = creditMembers.length;
+            if(creditMembersList) creditMembersList.innerHTML = '';
+            creditMembers.sort((a,b) => b.balance - a.balance).forEach(m => { // Sort by highest credit
+                const li = document.createElement('li');
+                li.textContent = `${m.name}: R${m.balance.toFixed(2)}`;
+                if(creditMembersList) creditMembersList.appendChild(li);
+            });
+
+            // Monthly payment overview (heuristic for current month)
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+            let expectedPaymentsThisMonth = familyMembers.length; // Everyone is expected to pay
+            let receivedPaymentsThisMonth = 0;
+            let missedPaymentsThisMonth = 0; // Declared here
+
+            // The number of truly "missed" payments is hard to track accurately without
+            // more complex state (e.g., `hasPaidThisMonth: boolean`).
+            // For now, we'll count members with a positive balance as "missed" if they haven't paid this month.
+            let currentlyOwingMembers = 0;
+
+            familyMembers.forEach(member => {
+                // Check for a payment made in the current calendar month by this member
+                const paidThisCalendarMonth = payments.some(p => {
+                    const paymentDate = new Date(p.date);
+                    return p.familyMemberId === member.id &&
+                           paymentDate.getMonth() === currentMonth &&
+                           paymentDate.getFullYear() === currentYear &&
+                           p.paymentType === 'monthly_contribution'; // Only count if it was a monthly contribution
+                });
+
+                if (paidThisCalendarMonth) {
+                    receivedPaymentsThisMonth++;
+                }
+
+                if (member.balance > 0) {
+                    currentlyOwingMembers++; // This counts how many members currently owe.
+                }
+            });
+
+            // A more accurate missed count would be expected - received.
+            missedPaymentsThisMonth = expectedPaymentsThisMonth - receivedPaymentsThisMonth;
+            if (missedPaymentsThisMonth < 0) missedPaymentsThisMonth = 0; // Cannot be negative
+
+            if(currentMonthExpectedSpan) currentMonthExpectedSpan.textContent = expectedPaymentsThisMonth;
+            if(currentMonthPaidSpan) currentMonthPaidSpan.textContent = receivedPaymentsThisMonth;
+            if(currentMonthMissedSpan) currentMonthMissedSpan.textContent = currentlyOwingMembers; // Showing who currently owes as "missed" for simplicity
+        }
+
+
+        // --- Local Storage Operations ---
+
+        /**
+         * Loads data from local storage.
+         * @param {string} key - The key for the data in local storage.
+         * @returns {any} The parsed data or empty array if not found.
+         */
+        function loadDataFromLocalStorage(key) {
+            try {
+                const data = localStorage.getItem(key);
+                return data ? JSON.parse(data) : [];
+            } catch (e) {
+                console.error(`Error loading data from local storage for key ${key}:`, e);
+                return [];
+            }
+        }
+
+        /**
+         * Saves data to local storage.
+         * @param {string} key - The key for the data in local storage.
+         * @param {any} data - The data to save.
+         */
+        function saveDataToLocalStorage(key, data) {
+            try {
+                localStorage.setItem(key, JSON.stringify(data));
+            } catch (e) {
+                console.error(`Error saving data to local storage for key ${key}:`, e);
+            }
+        }
+
+        // --- Conditional Data Operations (Firestore or Local Storage) ---
+
+        /**
+         * Adds a new family member. Uses Firestore if active, otherwise Local Storage.
+         * @param {object} memberData - The data for the new family member.
+         */
+        async function addFamilyMember(memberData) {
+            console.log('Attempting to add family member...');
+            // Initialize new member's balance and lastAccrualDate
+            memberData.balance = 0;
+            memberData.creationDate = new Date().toISOString().split('T')[0]; // Date member was added
+            memberData.lastAccrualDate = memberData.creationDate; // Initialize to creation date
+
+            if (isFirebaseActive) {
+                console.log('Attempting to add family member to Firestore. Current adminUserId:', adminUserId);
+                try {
+                    if (!adminUserId) {
+                        showMessageBox("Authentication required: Please ensure you are logged in as an admin (refresh if needed).", true);
+                        throw new Error("Admin user not authenticated or user ID is missing.");
+                    }
+                    // Use global firebase.firestore()
+                    const docRef = await firebase.firestore().collection(`artifacts/${appId}/users/${adminUserId}/familyMembers`).add(memberData);
+                    showMessageBox('Family member added successfully to Firestore!');
+                    console.log("Family member added to Firestore with ID: ", docRef.id);
+                } catch (e) {
+                    console.error("Error adding family member to Firestore: ", e);
+                    showMessageBox(`Failed to add family member to Firestore: ${e.message}. Check console for details.`, true);
+                }
+            } else {
+                // Local Storage fallback
+                const newId = crypto.randomUUID(); // Generate a unique ID for local storage
+                familyMembers.push({ id: newId, ...memberData });
+                saveDataToLocalStorage('familyMembers', familyMembers);
+                showMessageBox('Family member added successfully to Local Storage!');
+                renderFamilyMembers(); // Manually re-render for local storage
+                updateAdminDashboardSummary();
+            }
+        }
+
+        /**
+         * Updates an existing family member. Uses Firestore if active, otherwise Local Storage.
+         * @param {string} id - The ID of the family member to update.
+         * @param {object} memberData - The updated data.
+         */
+        async function updateFamilyMember(id, memberData) {
+            console.log(`Attempting to update family member ${id}...`);
+            if (isFirebaseActive) {
+                console.log('Attempting to update family member in Firestore. Current adminUserId:', adminUserId);
+                try {
+                    if (!adminUserId) {
+                        showMessageBox("Authentication required: Please ensure you are logged in as an admin (refresh if needed).", true);
+                        throw new Error("Admin user not authenticated or user ID is missing.");
+                    }
+                    // Use global firebase.firestore()
+                    const memberDocRef = firebase.firestore().doc(`artifacts/${appId}/users/${adminUserId}/familyMembers/${id}`);
+                    await memberDocRef.set(memberData); // Using set to overwrite
+                    showMessageBox('Family member updated successfully in Firestore!');
+                } catch (e) {
+                    console.error("Error updating family member in Firestore: ", e);
+                    showMessageBox(`Failed to update family member in Firestore: ${e.message}. Check console for details.`, true);
+                }
+            } else {
+                // Local Storage fallback
+                const index = familyMembers.findIndex(m => m.id === id);
+                if (index !== -1) {
+                    familyMembers[index] = { id, ...memberData };
+                    saveDataToLocalStorage('familyMembers', familyMembers);
+                    showMessageBox('Family member updated successfully in Local Storage!');
+                    renderFamilyMembers(); // Manually re-render
+                    updateAdminDashboardSummary();
+                }
+            }
+        }
+
+        /**
+         * Deletes a family member and associated payments. Uses Firestore if active, otherwise Local Storage.
+         * @param {string} id - The ID of the family member to delete.
+         */
+        async function deleteFamilyMember(id) {
+            console.log(`Attempting to delete family member ${id}...`);
+            if (!confirm('Are you sure you want to delete this family member and ALL their payment history? This action cannot be undone.')) {
+                return;
+            }
+
+            if (isFirebaseActive) {
+                console.log('Attempting to delete family member from Firestore. Current adminUserId:', adminUserId);
+                try {
+                    if (!adminUserId) {
+                        showMessageBox("Authentication required: Please ensure you are logged in as an as as an admin (refresh if needed).", true);
+                        throw new Error("Admin user not authenticated or user ID is missing.");
+                    }
+
+                    // Use global firebase.firestore()
+                    const paymentsToDeleteQuery = firebase.firestore().collection(`artifacts/${appId}/users/${adminUserId}/payments`).where("familyMemberId", "==", id);
+                    const querySnapshot = await paymentsToDeleteQuery.get();
+
+                    const batch = firebase.firestore().batch();
+                    querySnapshot.forEach((docToDelete) => {
+                        batch.delete(docToDelete.ref);
+                    });
+                    await batch.commit(); // Commit all deletions in a single batch
+
+                    const memberDocRef = firebase.firestore().doc(`artifacts/${appId}/users/${adminUserId}/familyMembers/${id}`);
+                    await memberDocRef.delete();
+                    showMessageBox('Family member and their payments deleted successfully from Firestore!');
+                }
+                catch (e) {
+                    console.error("Error deleting family member or payments from Firestore: ", e);
+                    showMessageBox(`Failed to delete family member from Firestore: ${e.message}. Check console for details.`, true);
+                }
+            } else {
+                // Local Storage fallback
+                familyMembers = familyMembers.filter(m => m.id !== id);
+                payments = payments.filter(p => p.familyMemberId !== id); // Also remove associated payments
+                saveDataToLocalStorage('familyMembers', familyMembers);
+                saveDataToLocalStorage('payments', payments);
+                showMessageBox('Family member and their payments deleted successfully from Local Storage!');
+                renderFamilyMembers(); // Re-render for local storage
+                renderPayments(currentSelectedFamilyMemberId); // Re-render payments if current member deleted
+                if (currentFamilyViewMemberId === id) { // If deleting selected family member in family view
+                    currentFamilyViewMemberId = null;
+                    familyViewContent.classList.add('hidden');
+                    selectFamilyMemberPrompt.classList.remove('hidden');
+                    selectMyFamilyMember.value = '';
+                }
+                updateAdminDashboardSummary();
+            }
+        }
+
+        /**
+         * Adds a new payment. Uses Firestore if active, otherwise Local Storage.
+         * Updates the family member's balance based on the payment.
+         * @param {object} paymentData - The data for the new payment.
+         */
+        async function addPayment(paymentData) {
+            console.log('Attempting to add payment...');
+            const member = familyMembers.find(m => m.id === paymentData.familyMemberId);
+            if (!member) {
+                showMessageBox("Error: Family member not found for payment.", true);
+                return;
+            }
+
+            // The payment will always be against the expected R100.
+            // The impact on the balance is: balance = balance - amountPaid
+            // The accrual function ensures the balance already includes the R100 for months up to current.
+            member.balance = (member.balance || 0) - paymentData.amountPaid;
+            member.lastPaymentDate = paymentData.date; // Update last payment date
+
+            // Update the family member's document with the new balance
+            await updateFamilyMember(member.id, member); // This will trigger onSnapshot if Firebase active
+
+            if (isFirebaseActive) {
+                console.log('Attempting to add payment to Firestore. Current adminUserId:', adminUserId);
+                try {
+                    if (!adminUserId) {
+                        showMessageBox("Authentication required: Please ensure you are logged in as an admin (refresh if needed).", true);
+                        throw new Error("Admin user not authenticated or user ID is missing.");
+                    }
+                    // Use global firebase.firestore()
+                    const docRef = await firebase.firestore().collection(`artifacts/${appId}/users/${adminUserId}/payments`).add({
+                        ...paymentData,
+                        expectedAmount: MONTHLY_EXPECTED_AMOUNT, // Store expected amount for traceability
+                    });
+                    showMessageBox('Payment added successfully to Firestore!');
+                } catch (e) {
+                    console.error("Error adding payment to Firestore: ", e);
+                    showMessageBox(`Failed to add payment to Firestore: ${e.message}. Check console for details.`, true);
+                }
+            } else {
+                // Local Storage fallback
+                const newId = crypto.randomUUID();
+                payments.push({ id: newId, ...paymentData, expectedAmount: MONTHLY_EXPECTED_AMOUNT });
+                saveDataToLocalStorage('payments', payments);
+                showMessageBox('Payment added successfully to Local Storage!');
+                renderPayments(currentSelectedFamilyMemberId); // Re-render payments list
+                if (currentFamilyViewMemberId) { // Also update family view if active
+                    const currentFilterButton = document.querySelector('#family-section button.bg-indigo-600');
+                    const currentFilterType = currentFilterButton ? currentFilterButton.id.replace('filter-', '') : 'all';
+                    renderFamilyViewPayments(currentFamilyViewMemberId, currentFilterType);
+                    populateYearFilter();
+                }
+                updateAdminDashboardSummary();
+            }
+        }
+
+        /**
+         * Updates an existing payment. Uses Firestore if active, otherwise Local Storage.
+         * Re-calculates and updates the family member's balance.
+         * @param {string} id - The ID of the payment to update.
+         * @param {object} updatedPaymentData - The updated data.
+         */
+        async function updatePayment(id, updatedPaymentData) {
+            console.log(`Attempting to update payment ${id}...`);
+            // Find the original payment to revert its effect on the balance
+            const originalPayment = payments.find(p => p.id === id);
+            if (!originalPayment) {
+                showMessageBox("Error: Original payment not found for update.", true);
+                return;
+            }
+
+            const member = familyMembers.find(m => m.id === updatedPaymentData.familyMemberId);
+            if (!member) {
+                showMessageBox("Error: Family member not found for payment update.", true);
+                return;
+            }
+
+            // Revert original payment's effect on balance
+            member.balance = (member.balance || 0) + originalPayment.amountPaid;
+
+            // Apply new payment's effect
+            member.balance = member.balance - updatedPaymentData.amountPaid;
+            member.lastPaymentDate = updatedPaymentData.date; // Update last payment date
+
+            // Update the family member's document with the new balance
+            await updateFamilyMember(member.id, member); // This will trigger onSnapshot if Firebase active
+
+            if (isFirebaseActive) {
+                console.log('Attempting to update payment in Firestore. Current adminUserId:', adminUserId);
+                try {
+                    if (!adminUserId) {
+                        showMessageBox("Authentication required: Please ensure you are logged in as an admin (refresh if needed).", true);
+                        throw new Error("Admin user not authenticated or user ID is missing.");
+                    }
+                    // Use global firebase.firestore()
+                    const paymentDocRef = firebase.firestore().doc(`artifacts/${appId}/users/${adminUserId}/payments/${id}`);
+                    await paymentDocRef.set({ ...updatedPaymentData, expectedAmount: MONTHLY_EXPECTED_AMOUNT });
+                    showMessageBox('Payment updated successfully in Firestore!');
+                } catch (e) {
+                    console.error("Error updating payment in Firestore: ", e);
+                    showMessageBox(`Failed to update payment in Firestore: ${e.message}. Check console for details.`, true);
+                }
+            } else {
+                // Local Storage fallback
+                const index = payments.findIndex(p => p.id === id);
+                if (index !== -1) {
+                    payments[index] = { id, ...updatedPaymentData, expectedAmount: MONTHLY_EXPECTED_AMOUNT };
+                    saveDataToLocalStorage('payments', payments);
+                    showMessageBox('Payment updated successfully in Local Storage!');
+                    renderPayments(currentSelectedFamilyMemberId); // Re-render payments list
+                    if (currentFamilyViewMemberId) {
+                        const currentFilterButton = document.querySelector('#family-section button.bg-indigo-600');
+                        const currentFilterType = currentFilterButton ? currentFilterButton.id.replace('filter-', '') : 'all';
+                        renderFamilyViewPayments(currentFamilyViewMemberId, currentFilterType);
+                        populateYearFilter();
+                    }
+                    updateAdminDashboardSummary();
+                }
+            }
+        }
+
+        /**
+         * Deletes a payment. Uses Firestore if active, otherwise Local Storage.
+         * Reverts the balance change of the deleted payment from the family member.
+         * @param {string} id - The ID of the payment to delete.
+         */
+        async function deletePayment(id) {
+            console.log(`Attempting to delete payment ${id}...`);
+            if (!confirm('Are you sure you want to delete this payment record?')) {
+                return;
+            }
+
+            const deletedPayment = payments.find(p => p.id === id);
+            if (!deletedPayment) {
+                showMessageBox("Error: Payment not found for deletion.", true);
+                return;
+            }
+
+            const member = familyMembers.find(m => m.id === deletedPayment.familyMemberId);
+            if (member) {
+                // Revert the payment's effect on the member's balance
+                member.balance = (member.balance || 0) + deletedPayment.amountPaid;
+                await updateFamilyMember(member.id, member); // This will trigger onSnapshot if Firebase active
+            }
+
+            if (isFirebaseActive) {
+                console.log('Attempting to delete payment from Firestore. Current adminUserId:', adminUserId);
+                try {
+                    if (!adminUserId) {
+                        showMessageBox("Authentication required: Please ensure you are logged in as an admin (refresh if needed).", true);
+                        throw new Error("Admin user not authenticated or user ID is missing.");
+                    }
+                    // Use global firebase.firestore()
+                    const paymentDocRef = firebase.firestore().doc(`artifacts/${appId}/users/${adminUserId}/payments/${id}`);
+                    await paymentDocRef.delete();
+                    showMessageBox('Payment deleted successfully from Firestore!');
+                } catch (e) {
+                    console.error("Error deleting payment from Firestore: ", e);
+                    showMessageBox(`Failed to delete payment from Firestore: ${e.message}. Check console for details.`, true);
+                }
+            } else {
+                // Local Storage fallback
+                payments = payments.filter(p => p.id !== id);
+                saveDataToLocalStorage('payments', payments);
+                showMessageBox('Payment deleted successfully from Local Storage!');
+                renderPayments(currentSelectedFamilyMemberId); // Re-render payments list
+                if (currentFamilyViewMemberId) {
+                    const currentFilterButton = document.querySelector('#family-section button.bg-indigo-600');
+                    const currentFilterType = currentFilterButton ? currentFilterButton.id.replace('filter-', '') : 'all';
+                    renderFamilyViewPayments(currentFamilyViewMemberId, currentFilterType);
+                    populateYearFilter();
+                }
+                updateAdminDashboardSummary();
+            }
+        }
+
+        /**
+         * Resets all application data (family members and payments).
+         * Requires admin key confirmation.
+         */
+        async function resetAllData() {
+            console.log('Attempting to reset all data.');
+            if (!confirm('Are you sure you want to delete this family member and ALL their payment history? This action cannot be undone.')) {
+                return;
+            }
+            const key = prompt('Please re-enter admin key to confirm reset:');
+            if (key !== ADMIN_KEY) {
+                showMessageBox('Incorrect admin key. Reset cancelled.', true);
+                return;
+            }
+
+            if (isFirebaseActive) {
+                try {
+                    // Delete all family members
+                    const familyMembersQuery = firebase.firestore().collection(`artifacts/${appId}/users/${adminUserId}/familyMembers`);
+                    const membersSnapshot = await familyMembersQuery.get();
+                    const memberDeletePromises = [];
+                    membersSnapshot.forEach(docToDelete => memberDeletePromises.push(docToDelete.ref.delete()));
+                    await Promise.all(memberDeletePromises);
+
+                    // Delete all payments
+                    const paymentsQuery = firebase.firestore().collection(`artifacts/${appId}/users/${adminUserId}/payments`);
+                    const paymentsSnapshot = await paymentsQuery.get();
+                    const paymentDeletePromises = [];
+                    paymentsSnapshot.forEach(docToDelete => paymentDeletePromises.push(docToDelete.ref.delete()));
+                    await Promise.all(paymentDeletePromises);
+
+                    showMessageBox('All Firebase data reset successfully!');
+                } catch (e) {
+                    console.error('Error resetting Firebase data:', e);
+                    showMessageBox(`Error resetting Firebase data: ${e.message}`, true);
+                }
+            } else {
+                localStorage.removeItem('familyMembers');
+                localStorage.removeItem('payments');
+                familyMembers = [];
+                payments = [];
+                showMessageBox('All local data reset successfully!');
+                renderFamilyMembers(); // Re-render everything after reset
+                renderPayments(''); // Clear payment table
+                currentSelectedFamilyMemberId = null;
+                selectFamilyMemberForPayments.value = '';
+                selectMyFamilyMember.value = '';
+                familyViewContent.classList.add('hidden');
+                selectFamilyMemberPrompt.classList.remove('hidden');
+                updateAdminDashboardSummary();
+            }
+        }
+
+        /**
+         * Exports all data (family members and payments) to a CSV file.
+         */
+        function exportDataToCSV() {
+            console.log('Exporting data to CSV.');
+            if (familyMembers.length === 0 && payments.length === 0) {
+                showMessageBox('No data to export.', true);
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,";
+
+            // Add Family Members Header
+            csvContent += "ID,Name,Email,Balance,Last Accrual Date,Creation Date\n";
+            familyMembers.forEach(member => {
+                const row = [
+                    `"${member.id}"`,
+                    `"${member.name}"`,
+                    `"${member.email || ''}"`,
+                    `${member.balance.toFixed(2)}`,
+                    `"${member.lastAccrualDate || ''}"`,
+                    `"${member.creationDate || ''}"`
+                ].join(',');
+                csvContent += row + "\n";
+            });
+
+            csvContent += "\nPayments\n";
+            csvContent += "ID,Family Member ID,Date,Amount Paid,Expected Amount,Description,Payment Type\n"; // Added Payment Type
+            payments.forEach(payment => {
+                const row = [
+                    `"${payment.id}"`,
+                    `"${payment.familyMemberId}"`,
+                    `"${payment.date}"`,
+                    `${payment.amountPaid.toFixed(2)}`,
+                    `${(payment.expectedAmount || MONTHLY_EXPECTED_AMOUNT).toFixed(2)}`,
+                    `"${payment.description || ''}"`,
+                    `"${payment.paymentType || 'N/A'}"` // Export payment type
+                ].join(',');
+                csvContent += row + "\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "family_payment_data.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showMessageBox('Data exported to family_payment_data.csv!');
+        }
+
+        // --- Main Application Initialization and Firebase Listeners ---
+
+        // This function runs once the window.onload event fires (ensures DOM is ready)
+        window.onload = async () => {
+            console.log('Window onload triggered. Starting app initialization.');
+            
+            // Assign ALL DOM element references here, ensuring they exist before any function uses them
+            // This is critical for preventing "Cannot read properties of undefined" errors.
+            adminSection = document.getElementById('admin-section');
+            familySection = document.getElementById('family-section');
+            adminNavBtn = document.getElementById('admin-nav-btn');
+            familyNavBtn = document.getElementById('family-nav-btn');
+            loadingSpinner = document.getElementById('loading-spinner');
+            adminUserIdSpan = document.getElementById('admin-user-id');
+            messageBox = document.getElementById('message-box');
+            adminKeySection = document.getElementById('admin-key-section');
+            adminKeyInput = document.getElementById('admin-key-input');
+            submitAdminKeyBtn = document.getElementById('submit-admin-key-btn');
+            adminKeyError = document.getElementById('admin-key-error');
+            adminDashboardContent = document.getElementById('admin-dashboard-content');
+            totalMembersSpan = document.getElementById('total-members');
+            adminTotalOwingSpan = document.getElementById('admin-total-owing');
+            adminTotalAmountSpan = document.getElementById('admin-total-amount'); 
+            exportDataBtn = document.getElementById('export-data-btn');
+            resetDataBtn = document.getElementById('reset-data-btn');
+            currentMonthExpectedSpan = document.getElementById('current-month-expected');
+            currentMonthPaidSpan = document.getElementById('current-month-paid');
+            currentMonthMissedSpan = document.getElementById('current-month-missed');
+            overdueMembersCountSpan = document.getElementById('overdue-members-count');
+            overdueMembersList = document.getElementById('overdue-members-list');
+            creditMembersCountSpan = document.getElementById('credit-members-count');
+            creditMembersList = document.getElementById('credit-members-list');
+            familyMemberModal = document.getElementById('family-member-modal');
+            familyMemberModalTitle = document.getElementById('family-member-modal-title');
+            familyMemberForm = document.getElementById('family-member-form');
+            familyMemberIdInput = document.getElementById('family-member-id');
+            familyMemberNameInput = document.getElementById('family-member-name');
+            familyMemberEmailInput = document.getElementById('family-member-email');
+            addFamilyMemberBtn = document.getElementById('add-family-member-btn'); 
+            cancelFamilyMemberBtn = document.getElementById('cancel-family-member-btn');
+            familyMembersListDiv = document.getElementById('family-members-list');
+            paymentModal = document.getElementById('payment-modal');
+            paymentModalTitle = document.getElementById('payment-modal-title');
+            paymentForm = document.getElementById('payment-form');
+            paymentIdInput = document.getElementById('payment-id');
+            paymentFamilyMemberIdInput = document.getElementById('payment-family-member-id');
+            paymentDateInput = document.getElementById('payment-date');
+            paymentTypeSelect = document.getElementById('payment-type-select');
+            amountPaidInput = document.getElementById('amount-paid');
+            paymentResultSummary = document.getElementById('payment-result-summary');
+            resultStatusDisplay = document.getElementById('result-status-display');
+            resultOwingDisplay = document.getElementById('result-owing-display');
+            resultCreditDisplay = document.getElementById('result-credit-display');
+            paymentDescriptionInput = document.getElementById('payment-description');
+            addPaymentButton = document.getElementById('add-payment-btn'); // Correctly assigned here
+            cancelPaymentBtnElement = document.getElementById('cancel-payment-btn');
+            selectFamilyMemberForPayments = document.getElementById('select-family-member-for-payments');
+            paymentsTableContainer = document.getElementById('payments-table-container');
+            paymentsTableBody = document.getElementById('payments-table-body');
+            paymentsTable = document.getElementById('payments-table');
+            noPaymentsMessage = document.getElementById('no-payments-message');
+            selectMyFamilyMember = document.getElementById('select-my-family-member');
+            familyViewContent = document.getElementById('family-view-content');
+            selectFamilyMemberPrompt = document.getElementById('select-family-member-prompt');
+            familyCurrentBalanceSpan = document.getElementById('family-current-balance');
+            balanceStatusSpan = document.getElementById('balance-status');
+            familyTotalPaidSummarySpan = document.getElementById('family-total-paid-summary');
+            familyTotalCreditSummarySpan = document.getElementById('family-total-credit-summary'); 
+            filterAllBtn = document.getElementById('filter-all');
+            filter2025Btn = document.getElementById('filter-2025');
+            filterLast3MonthsBtn = document.getElementById('filter-last-3-months');
+            filterByYearSelect = document.getElementById('filter-by-year');
+            familyPaymentsTableBody = document.getElementById('family-payments-table-body');
+            familyPaymentsTable = document.getElementById('family-payments-table');
+            noFamilyPaymentsMessage = document.getElementById('no-family-payments-message');
+            troubleshootButton = document.getElementById('troubleshoot-button'); 
+
+            // Now that DOM elements are assigned, safely call showSection and attach troubleshoot button listener
+            showSection('loading'); 
+
+            if (troubleshootButton) {
+                troubleshootButton.addEventListener('click', () => {
+                    console.log('Troubleshoot button clicked! JavaScript is running.');
+                    showMessageBox('Troubleshoot button clicked! JavaScript is running correctly.');
+                });
+                console.log('Troubleshoot button listener attached successfully.');
+            } else {
+                console.error('Troubleshoot button DOM element not found, cannot attach listener.');
+            }
+
+
+            try {
+                // Attempt to initialize Firebase using global 'firebase' object
+                // The 'compat' versions of the SDKs make the 'firebase' global object available
+                // and provide the familiar syntax like firebase.auth(), firebase.firestore().
+                app = firebase.initializeApp(firebaseConfig);
+                auth = firebase.auth();
+                db = firebase.firestore();
+
+                // Check if Firebase config still has placeholders (i.e., not configured by user)
+                // This check now uses the firebaseConfig directly, which should have your values.
+                if (firebaseConfig.apiKey === "YOUR_FIREBASE_API_KEY") {
+                    throw new Error("Firebase configuration placeholders detected. Switching to Local Storage Mode.");
+                }
+
+                // Attempt to authenticate with Firebase
+                // Use firebase.auth() directly
+                if (initialAuthToken) {
+                    await auth.signInWithCustomToken(initialAuthToken);
+                    console.log('Signed in with custom token.');
+                } else {
+                    await auth.signInAnonymously();
+                    console.log('Signed in anonymously.');
+                }
+                isFirebaseActive = true;
+                showMessageBox("Connected to Firebase!", false); // Indicate successful Firebase connection
+
+            } catch (error) {
+                isFirebaseActive = false;
+                console.warn("Firebase initialization failed or not configured, falling back to Local Storage:", error.message);
+                showMessageBox("Running in Local Storage Mode (data will only persist on this device). For cloud storage, configure Firebase.", true);
+            } finally {
+                loadingSpinner.classList.add('hidden'); // Hide loading spinner regardless of Firebase success
+                console.log('Firebase/Local Storage initialization attempt finished.');
+
+                // After trying Firebase, proceed with either Firebase listeners or local storage loading
+                if (isFirebaseActive && auth && auth.currentUser) {
+                     adminUserId = auth.currentUser.uid; // Set the adminUserId to the authenticated user's UID
+                     adminUserIdSpan.textContent = adminUserId; // Display it in the UI
+                     setupFirestoreListeners();
+                     console.log("Authenticated as (Firebase):", adminUserId);
+                } else {
+                    // Use a generic ID for local storage since there's no real Firebase auth
+                    adminUserId = 'local-admin-id'; // A fixed ID for local storage operations
+                    adminUserIdSpan.textContent = 'LOCAL_STORAGE_MODE';
+                    console.log("Operating in Local Storage Mode. User ID:", adminUserId);
+                    // Load data from local storage
+                    familyMembers = loadDataFromLocalStorage('familyMembers');
+                    payments = loadDataFromLocalStorage('payments');
+                    renderFamilyMembers(); // Initial render for local storage data
+                    if (currentFamilyViewMemberId) { // Re-render family view if a member was previously selected
+                        const currentFilterButton = document.querySelector('#family-section button.bg-indigo-600');
+                        const currentFilterType = currentFilterButton ? currentFilterButton.id.replace('filter-', '') : 'all';
+                        renderFamilyViewPayments(currentFamilyViewMemberId, currentFilterType);
+                        populateYearFilter();
+                    }
+                    updateAdminDashboardSummary(); // Update summary for local storage
+                }
+                showSection('admin'); // Show the Admin Dashboard (will prompt for key if not entered)
+
+                // Attach ALL other button listeners here AFTER the DOM and Firebase (or local storage) are ready
+                attachAllButtonListeners();
+            }
+        };
+
+        /**
+         * Sets up real-time Firestore listeners for 'familyMembers' and 'payments' collections.
+         * These listeners automatically update the local `familyMembers` and `payments` arrays
+         * and trigger UI re-renders whenever data changes in Firestore.
+         */
+        function setupFirestoreListeners() {
+            console.log('Attempting to set up Firestore listeners.');
+            if (!isFirebaseActive || !adminUserId) {
+                console.warn("Firestore listeners cannot be set up: Firebase not active or adminUserId is missing.");
+                return;
+            }
+
+            // Listener for 'familyMembers' collection
+            // Use firebase.firestore() directly
+            firebase.firestore().collection(`artifacts/${appId}/users/${adminUserId}/familyMembers`).onSnapshot((snapshot) => {
+                console.log('Firestore: Family members snapshot received.');
+                familyMembers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                console.log('Family members updated via Firestore onSnapshot:', familyMembers);
+                renderFamilyMembers();
+            }, (error) => {
+                console.error("Error fetching family members from Firestore in real-time:", error);
+                showMessageBox(`Error loading family members from Firestore: ${error.message}.`, true);
+            });
+
+            // Listener for 'payments' collection
+            // Use firebase.firestore() directly
+            firebase.firestore().collection(`artifacts/${appId}/users/${adminUserId}/payments`).onSnapshot((snapshot) => {
+                console.log('Firestore: Payments snapshot received.');
+                payments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                console.log('Payments updated via Firestore onSnapshot:', payments);
+                if (currentSelectedFamilyMemberId) {
+                    renderPayments(currentSelectedFamilyMemberId);
+                }
+                if (currentFamilyViewMemberId) {
+                    const currentFilterButton = document.querySelector('#family-section button.bg-indigo-600');
+                    const currentFilterType = currentFilterButton ? currentFilterButton.id.replace('filter-', '') : 'all';
+                    renderFamilyViewPayments(currentFamilyViewMemberId, currentFilterType);
+                    populateYearFilter();
+                }
+                updateAdminDashboardSummary(); // This is correctly here for any payment change
+            }, (error) => {
+                console.error("Error fetching payments from Firestore in real-time:", error);
+                showMessageBox(`Error loading payments from Firestore: ${error.message}.`, true);
+            });
+        }
+
+        /**
+         * Attaches all general button listeners after the app has initialized.
+         */
+        function attachAllButtonListeners() {
+            console.log('Attaching all general button listeners.');
+            // Switch to Admin Dashboard
+            if (adminNavBtn) {
+                adminNavBtn.onclick = () => showSection('admin');
+                console.log('adminNavBtn listener attached.');
+            } else { console.warn('adminNavBtn not found.'); }
+
+            // Switch to Family View
+            if (familyNavBtn) {
+                familyNavBtn.onclick = () => {
+                    showSection('family');
+                    if (currentFamilyViewMemberId) {
+                        const currentFilterButton = document.querySelector('#family-section button.bg-indigo-600');
+                        const currentFilterType = currentFilterButton ? currentFilterButton.id.replace('filter-', '') : 'all';
+                        renderFamilyViewPayments(currentFamilyViewMemberId, currentFilterType);
+                        populateYearFilter();
+                    }
+                };
+                console.log('familyNavBtn listener attached.');
+            } else { console.warn('familyNavBtn not found.'); }
+
+            // Event listener for submitting the admin key
+            if (submitAdminKeyBtn) {
+                submitAdminKeyBtn.onclick = () => {
+                    console.log('Submit Admin Key button clicked.');
+                    const enteredKey = adminKeyInput.value;
+                    if (enteredKey === ADMIN_KEY) {
+                        isAdminKeyEntered = true;
+                        adminKeyError.classList.add('hidden');
+                        adminKeySection.classList.add('hidden');
+                        adminDashboardContent.classList.remove('hidden');
+                        showMessageBox("Admin access granted!");
+                        renderFamilyMembers(); // Re-render initial data for admin view
+                        if (familyMembers.length > 0 && !currentSelectedFamilyMemberId) {
+                            currentSelectedFamilyMemberId = familyMembers[0].id;
+                            renderPayments(currentSelectedFamilyMemberId);
+                        } else if (currentSelectedFamilyMemberId) {
+                            renderPayments(currentSelectedFamilyMemberId);
+                        }
+                        updateAdminDashboardSummary(); // Update summary immediately after login
+                    } else {
+                        adminKeyError.classList.remove('hidden');
+                        showMessageBox("Incorrect Admin Key. Access Denied.", true);
+                    }
+                };
+                console.log('submitAdminKeyBtn listener attached.');
+            } else { console.warn('submitAdminKeyBtn not found.'); }
+
+            // Event listener for adding family members
+            if (addFamilyMemberBtn) {
+                addFamilyMemberBtn.onclick = () => {
+                    familyMemberModalTitle.textContent = 'Add New Family Member'; // Set modal title
+                    familyMemberForm.reset(); // Clear form fields
+                    familyMemberIdInput.value = ''; // Ensure ID is empty for a new entry
+                    openModal(familyMemberModal);
+                };
+                console.log('addFamilyMemberBtn listener attached.');
+            } else { console.warn('addFamilyMemberBtn not found.'); }
+
+            // Event listener for exporting data
+            if (exportDataBtn) {
+                exportDataBtn.onclick = exportDataToCSV;
+                console.log('exportDataBtn listener attached.');
+            } else { console.warn('exportDataBtn not found.'); }
+
+            // Event listener for resetting data
+            if (resetDataBtn) {
+                resetDataBtn.onclick = resetAllData;
+                console.log('resetDataBtn listener attached.');
+            } else { console.warn('resetDataBtn not found.'); }
+
+            // Event listener for selecting family member for payments dropdown
+            if (selectFamilyMemberForPayments) {
+                selectFamilyMemberForPayments.onchange = (e) => {
+                    console.log('Family member selection changed in Admin panel.');
+                    currentSelectedFamilyMemberId = e.target.value;
+                    if (currentSelectedFamilyMemberId) {
+                        if(addPaymentButton) addPaymentButton.disabled = false; // Check for element
+                        renderPayments(currentSelectedFamilyMemberId);
+                    } else {
+                        if(addPaymentButton) addPaymentButton.disabled = true; // Check for element
+                        if(paymentsTable) paymentsTable.classList.add('hidden');
+                        if(noPaymentsMessage) noPaymentsMessage.classList.remove('hidden');
+                    }
+                };
+                console.log('selectFamilyMemberForPayments listener attached.');
+            } else { console.warn('selectFamilyMemberForPayments not found.'); }
+
+            // Event listener for Add New Payment button
+            if (addPaymentButton) { // Use renamed variable
+                addPaymentButton.onclick = () => {
+                    console.log('Add New Payment button clicked.');
+                    if (!currentSelectedFamilyMemberId) {
+                        showMessageBox("Please select a family member first to add a payment.", true);
+                        return;
+                    }
+                    paymentModalTitle.textContent = 'Add New Payment';
+                    paymentForm.reset();
+                    paymentIdInput.value = ''; // Clear ID for new entry
+                    paymentFamilyMemberIdInput.value = currentSelectedFamilyMemberId; // Pre-fill family member ID
+                    amountPaidInput.value = MONTHLY_EXPECTED_AMOUNT.toFixed(2); // Pre-fill with expected amount
+                    paymentDescriptionInput.value = "Monthly Contribution"; // Default description
+                    resultStatusDisplay.textContent = ""; // Clear previous status
+                    resultOwingDisplay.textContent = ""; // Clear previous results
+                    resultCreditDisplay.textContent = "";
+                    paymentResultSummary.classList.add('hidden'); // Hide summary until input changes
+                    paymentTypeSelect.value = "monthly_contribution"; // Default to monthly contribution
+
+                    openModal(paymentModal);
+                };
+                console.log('addPaymentButton listener attached.');
+            } else { console.warn('addPaymentButton not found.'); }
+
+            // Event listener for Payment Type select change
+            if (paymentTypeSelect) {
+                paymentTypeSelect.onchange = () => {
+                    // Trigger amountPaidInput oninput to update summary based on new type
+                    amountPaidInput.dispatchEvent(new Event('input'));
+                };
+                console.log('paymentTypeSelect listener attached.');
+            } else { console.warn('paymentTypeSelect not found.'); }
+
+
+            // Event listener for filter buttons (Family View)
+            const filterButtons = [filterAllBtn, filter2025Btn, filterLast3MonthsBtn]; // Redefine locally if needed
+            if (filterAllBtn) {
+                filterAllBtn.onclick = () => {
+                    console.log('Filter All button clicked.');
+                    if (!currentFamilyViewMemberId) { showMessageBox("Please select your family member profile first to apply filters.", true); return; }
+                    filterButtons.forEach(btn => btn.classList.remove('bg-indigo-600', 'text-white'));
+                    filterAllBtn.classList.add('bg-indigo-600', 'text-white');
+                    filterByYearSelect.value = '';
+                    renderFamilyViewPayments(currentFamilyViewMemberId, 'all');
+                };
+                console.log('filterAllBtn listener attached.');
+            } else { console.warn('filterAllBtn not found.'); }
+
+            if (filter2025Btn) {
+                filter2025Btn.onclick = () => {
+                    console.log('Filter 2025 button clicked.');
+                    if (!currentFamilyViewMemberId) { showMessageBox("Please select your family member profile first to apply filters.", true); return; }
+                    filterButtons.forEach(btn => btn.classList.remove('bg-indigo-600', 'text-white'));
+                    filter2025Btn.classList.add('bg-indigo-600', 'text-white');
+                    filterByYearSelect.value = '';
+                    renderFamilyViewPayments(currentFamilyViewMemberId, '2025');
+                };
+                console.log('filter2025Btn listener attached.');
+            } else { console.warn('filter2025Btn not found.'); }
+
+            if (filterLast3MonthsBtn) {
+                filterLast3MonthsBtn.onclick = () => {
+                    console.log('Filter Last 3 Months button clicked.');
+                    if (!currentFamilyViewMemberId) { showMessageBox("Please select your family member profile first to apply filters.", true); return; }
+                    filterButtons.forEach(btn => btn.classList.remove('bg-indigo-600', 'text-white'));
+                    filterLast3MonthsBtn.classList.add('bg-indigo-600', 'text-white');
+                    filterByYearSelect.value = '';
+                    renderFamilyViewPayments(currentFamilyViewMemberId, 'last3months');
+                };
+                console.log('filterLast3MonthsBtn listener attached.');
+            } else { console.warn('filterLast3MonthsBtn not found.'); }
+
+            // Event listener for filter by year dropdown
+            if (filterByYearSelect) {
+                filterByYearSelect.onchange = (e) => {
+                    console.log(`Year filter selected: ${e.target.value}`);
+                    if (!currentFamilyViewMemberId) { showMessageBox("Please select your family member profile first to filter by year.", true); return; }
+                    filterButtons.forEach(btn => btn.classList.remove('bg-indigo-600', 'text-white'));
+                    if (e.target.value) {
+                        renderFamilyViewPayments(currentFamilyViewMemberId, e.target.value);
+                    } else {
+                        filterAllBtn.classList.add('bg-indigo-600', 'text-white');
+                        renderFamilyViewPayments(currentFamilyViewMemberId, 'all');
+                    }
+                };
+                console.log('filterByYearSelect listener attached.');
+            } else { console.warn('filterByYearSelect not found.'); }
+
+            // Attach form submission and modal cancel listeners
+            if (familyMemberForm) {
+                familyMemberForm.onsubmit = async (e) => {
+                    e.preventDefault();
+                    const id = familyMemberIdInput.value;
+                    const name = familyMemberNameInput.value.trim();
+                    const email = familyMemberEmailInput.value.trim();
+
+                    if (!name) {
+                        showMessageBox("Please fill in the family member's name.", true);
+                        return;
+                    }
+
+                    const familyMemberData = { name, email: email || '' };
+
+                    if (id) {
+                        await updateFamilyMember(id, familyMemberData);
+                    } else {
+                        await addFamilyMember(familyMemberData);
+                    }
+                    closeModal(familyMemberModal);
+                };
+                console.log('familyMemberForm submit listener attached.');
+            } else { console.warn('familyMemberForm not found.'); }
+
+            if (cancelFamilyMemberBtn) {
+                cancelFamilyMemberBtn.onclick = () => closeModal(familyMemberModal);
+                console.log('cancelFamilyMemberBtn listener attached.');
+            } else { console.warn('cancelFamilyMemberBtn not found.'); }
+
+            const familyMemberModalCloseButton = document.querySelector('#family-member-modal .close-button');
+            if (familyMemberModalCloseButton) {
+                familyMemberModalCloseButton.onclick = () => closeModal(familyMemberModal);
+                console.log('familyMemberModal close button listener attached.');
+            } else { console.warn('familyMemberModalCloseButton not found.'); }
+
+            if (paymentForm) {
+                paymentForm.onsubmit = async (e) => {
+                    e.preventDefault();
+                    const id = paymentIdInput.value;
+                    const familyMemberId = paymentFamilyMemberIdInput.value;
+                    const date = paymentDateInput.value;
+                    const amountPaid = parseFloat(amountPaidInput.value);
+                    const paymentType = paymentTypeSelect.value; // Get selected payment type
+                    const description = paymentDescriptionInput.value.trim();
+
+                    if (!date || isNaN(amountPaid)) {
+                        showMessageBox("Please fill in all required payment fields correctly (Date, Amount Paid).", true);
+                        return;
+                    }
+
+                    const paymentData = {
+                        familyMemberId,
+                        date,
+                        amountPaid: parseFloat(amountPaid.toFixed(2)),
+                        paymentType, // Store payment type
+                        description
+                    };
+
+                    if (id) {
+                        await updatePayment(id, paymentData);
+                    } else {
+                        await addPayment(paymentData);
+                    }
+                    closeModal(paymentModal);
+                };
+                console.log('paymentForm submit listener attached.');
+            } else { console.warn('paymentForm not found.'); }
+
+            if (cancelPaymentBtnElement) { // Using the renamed variable
+                cancelPaymentBtnElement.onclick = () => closeModal(paymentModal);
+                console.log('cancelPaymentBtnElement listener attached.');
+            } else { console.warn('cancelPaymentBtnElement not found.'); }
+
+            const paymentModalCloseButton = document.querySelector('#payment-modal .close-button');
+            if (paymentModalCloseButton) {
+                paymentModalCloseButton.onclick = () => closeModal(paymentModal);
+                console.log('paymentModal close button listener attached.');
+            } else { console.warn('paymentModalCloseButton not found.'); }
+
+            // Event listener for amount paid input to trigger calculation display
+            if (amountPaidInput && paymentTypeSelect && resultStatusDisplay && resultOwingDisplay && resultCreditDisplay && paymentResultSummary) {
+                amountPaidInput.oninput = () => {
+                    const paid = parseFloat(amountPaidInput.value) || 0;
+                    const selectedPaymentType = paymentTypeSelect.value;
+                    const member = familyMembers.find(m => m.id === paymentFamilyMemberIdInput.value);
+                    if (!member) {
+                        resultStatusDisplay.textContent = "";
+                        resultOwingDisplay.textContent = "";
+                        resultCreditDisplay.textContent = "";
+                        paymentResultSummary.classList.add('hidden');
+                        return;
+                    }
+
+                    // This calculation is for display only in the modal to show the *effect* of THIS payment
+                    // on their current standing. It doesn't alter the actual balance yet.
+                    let currentMemberBalance = member.balance; // Use current balance for calculation preview
+
+                    resultStatusDisplay.style.color = '#374151'; // Reset color for status
+
+                    if (selectedPaymentType === 'monthly_contribution') {
+                        // How much of the R100 for *this month's contribution* is covered/owed/overpaid
+                        const differenceFromMonthly = MONTHLY_EXPECTED_AMOUNT - paid;
+
+                        if (differenceFromMonthly > 0) {
+                            resultStatusDisplay.textContent = `Still owes R${differenceFromMonthly.toFixed(2)} for this month's contribution.`;
+                            resultStatusDisplay.style.color = '#dc2626'; // Red for owing on this month
+                        } else if (differenceFromMonthly < 0) {
+                            resultStatusDisplay.textContent = `Paid R${Math.abs(differenceFromMonthly).toFixed(2)} extra for this month's contribution.`;
+                            resultStatusDisplay.style.color = '#10b981'; // Green for credit on this month
+                        } else {
+                            resultStatusDisplay.textContent = `This payment covers this month's R${MONTHLY_EXPECTED_AMOUNT.toFixed(2)} contribution exactly.`;
+                            resultStatusDisplay.style.color = '#374151'; // Neutral
+                        }
+
+                        // Display impact on overall balance
+                        const newOverallBalance = currentMemberBalance - paid;
+                        if (newOverallBalance > 0) {
+                            resultOwingDisplay.textContent = `New overall balance: R${newOverallBalance.toFixed(2)} (still owing)`;
+                            resultOwingDisplay.style.color = '#dc2626';
+                            resultCreditDisplay.textContent = "";
+                        } else if (newOverallBalance < 0) {
+                            resultCreditDisplay.textContent = `New overall balance: R${Math.abs(newOverallBalance).toFixed(2)} (credit)`;
+                            resultCreditDisplay.style.color = '#10b981';
+                            resultOwingDisplay.textContent = "";
+                        } else {
+                            resultOwingDisplay.textContent = `New overall balance: R${newOverallBalance.toFixed(2)} (clear)`;
+                            resultCreditDisplay.style.color = '#374151';
+                            resultOwingDisplay.textContent = "";
+                        }
+
+                    } else { // additional_payment
+                        resultStatusDisplay.textContent = "This is an additional payment towards your overall balance.";
+                        const newOverallBalance = currentMemberBalance - paid;
+
+                        if (newOverallBalance > 0) {
+                            resultOwingDisplay.textContent = `New overall balance: R${newOverallBalance.toFixed(2)} (still owing)`;
+                            resultOwingDisplay.style.color = '#dc2626';
+                            resultCreditDisplay.textContent = "";
+                        } else if (newOverallBalance < 0) {
+                            resultCreditDisplay.textContent = `New overall balance: R${Math.abs(newOverallBalance).toFixed(2)} (credit)`;
+                            resultCreditDisplay.style.color = '#10b981';
+                            resultOwingDisplay.textContent = "";
+                        } else {
+                            resultOwingDisplay.textContent = `New overall balance: R${newOverallBalance.toFixed(2)} (clear)`;
+                            resultCreditDisplay.style.color = '#374151';
+                            resultOwingDisplay.textContent = "";
+                        }
+                    }
+                    paymentResultSummary.classList.remove('hidden');
+                };
+                console.log('amountPaidInput oninput listener attached.');
+            } else { console.warn('amountPaidInput or paymentTypeSelect or result displays not found.'); }
+        }
+    </script>
+</body>
+</html>
